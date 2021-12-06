@@ -36,13 +36,14 @@ class MainActivity: AppCompatActivity() {
 
     private var pauseAnalysis = false
     private var imageRotationDegrees: Int = 0
+    private val nativeLib = NativeLib()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityCameraBinding = MainActivityBinding.inflate(layoutInflater)
         setContentView(activityCameraBinding.root)
 
-        NativeLib().create()
+        nativeLib.create()
     }
 
     /** Declare and bind preview and analysis use cases */
@@ -90,6 +91,15 @@ class MainActivity: AppCompatActivity() {
                 // Copy out RGB bits to our shared buffer
                 image.use {
                     bitmapBuffer.copyPixelsFromBuffer(it.planes[0].buffer)
+                }
+
+
+                val arr = IntArray(bitmapBuffer.height * bitmapBuffer.width)
+
+                for(y in 0 until bitmapBuffer.height) {
+                    for(x in 0 until bitmapBuffer.width) {
+                        arr[bitmapBuffer.width * y + x] = bitmapBuffer[x, y]
+                    }
                 }
 
                  // Compute the FPS of the entire pipeline
