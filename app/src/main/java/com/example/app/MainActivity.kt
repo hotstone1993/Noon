@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
@@ -14,6 +16,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.get
 import androidx.lifecycle.LifecycleOwner
 import com.example.app.databinding.MainActivityBinding
 import com.example.core.NativeLib
@@ -23,7 +26,6 @@ import kotlin.random.Random
 class MainActivity: AppCompatActivity() {
 
     private lateinit var activityCameraBinding: MainActivityBinding
-
     private lateinit var bitmapBuffer: Bitmap
 
     private val executor = Executors.newSingleThreadExecutor()
@@ -44,6 +46,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     /** Declare and bind preview and analysis use cases */
+    @RequiresApi(Build.VERSION_CODES.S)
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun bindCameraUseCases() = activityCameraBinding.viewFinder.post {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -62,6 +65,7 @@ class MainActivity: AppCompatActivity() {
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(activityCameraBinding.viewFinder.display.rotation)
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
                 .build()
 
             var frameCounter = 0
@@ -72,6 +76,7 @@ class MainActivity: AppCompatActivity() {
                     // The image rotation and RGB image buffer are initialized only once
                     // the analyzer has started running
                     imageRotationDegrees = image.imageInfo.rotationDegrees
+
                     bitmapBuffer = Bitmap.createBitmap(
                         image.width, image.height, Bitmap.Config.ARGB_8888)
                 }
@@ -80,6 +85,11 @@ class MainActivity: AppCompatActivity() {
                 if (pauseAnalysis) {
                     image.close()
                     return@Analyzer
+                }
+
+                // Copy out RGB bits to our shared buffer
+                image.use {
+                    bitmapBuffer.copyPixelsFromBuffer(it.planes[0].buffer)
                 }
 
                  // Compute the FPS of the entire pipeline
@@ -107,6 +117,7 @@ class MainActivity: AppCompatActivity() {
         }, ContextCompat.getMainExecutor(this))
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onResume() {
         super.onResume()
 
@@ -119,6 +130,7 @@ class MainActivity: AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
