@@ -35,8 +35,9 @@ add_library( # Sets the name of the library.
 
 
 find_library( # Sets the name of the path variable.
-              log-lib
-
+                log-lib
+                android
+                android-lib
               # Specifies the name of the NDK library that
               # you want CMake to locate.
               log )
@@ -52,7 +53,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_libraries( # Specifies the target library.
                         ${PROJECT_NAME} PUBLIC
-                       ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libtensorflowlite.so
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libtensorflowlite.so
+                        android
                        # Links the target library to the log library
                        # included in the NDK.
-                       ${log-lib} )
+                        ${log-lib} )
