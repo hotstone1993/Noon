@@ -3,12 +3,16 @@
 //
 
 #include "include/Processor.h"
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 
 #define TFLITE_MINIMAL_CHECK(x)                              \
 if (!(x)) {                                                \
     fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
     return -1; \
 }
+
+
 
 Processor::Processor() {
 
@@ -17,10 +21,10 @@ Processor::~Processor() {
     destroy();
 }
 
-int Processor::loadModel(const std::string& path) {
+int Processor::loadModel(const char* file, size_t fileSize) {
     int result = 0;
     std::unique_ptr<tflite::FlatBufferModel> model =
-            tflite::FlatBufferModel::BuildFromFile(path.c_str());
+            tflite::FlatBufferModel::BuildFromBuffer(file, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
 
     // Build the interpreter with the InterpreterBuilder.
@@ -56,7 +60,7 @@ int Processor::loadModel(const std::string& path) {
     return result;
 }
 
-int Processor::inference() {
+int Processor::inference(int* arr, int size) {
     int result = 0;
 
     return result;

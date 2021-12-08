@@ -18,8 +18,8 @@ public:
     Processor();
     virtual ~Processor();
 
-    int loadModel(const std::string& path);
-    int inference();
+    int loadModel(const char* file, size_t fileSize);
+    int inference(int* arr, int size);
 private:
     int destroy();
 };

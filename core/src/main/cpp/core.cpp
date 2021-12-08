@@ -1,8 +1,13 @@
 #include <jni.h>
 #include <string>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include "include/Processor.h"
 
 const char* const INSTANCE = "nativeInstance";
+
+const int SUCESS = 0;
+const int FAIL = -1;
 
 Processor* getInstance(JNIEnv* env, const jobject& obj) {
     jclass cls = env->GetObjectClass(obj);
@@ -14,8 +19,7 @@ Processor* getInstance(JNIEnv* env, const jobject& obj) {
 extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
         JNIEnv *env,
         jobject obj /* this */) {
-    int result = 0;
-
+    int result = SUCESS;
 
     Processor* newInstance = new Processor();
 
@@ -29,15 +33,47 @@ extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
 extern "C" JNIEXPORT jint JNICALL
 Java_com_example_core_NativeLib_loadModel(
         JNIEnv *env,
-        jobject /* this */, jstring path) {
-    int result = 0;
-    return result;
+        jobject obj,
+        jobject assetManager, jstring modelPath, jstring labelPath) {
+
+    const char* model = env->GetStringUTFChars(modelPath, nullptr);
+    const char* label = env->GetStringUTFChars(labelPath, nullptr);
+
+    AAssetManager *manager = AAssetManager_fromJava(env, assetManager);
+    AAsset* asset = AAssetManager_open(manager, model, AASSET_MODE_UNKNOWN);
+    env->ReleaseStringUTFChars(modelPath, model);
+    env->ReleaseStringUTFChars(labelPath, label);
+
+    if ( asset == nullptr )
+        return FAIL;
+    off_t fileSize = AAsset_getLength(asset);
+    if ( fileSize == 0 )
+        return FAIL;
+
+    char *buffer = new char[fileSize];
+    if(AAsset_read(asset, buffer, fileSize) < 0)
+       return FAIL;
+
+    Processor* instance =  getInstance(env, obj);
+    instance->loadModel(buffer, fileSize);
+
+    AAsset_close(asset);
+
+    return SUCESS;
 }
 extern "C" JNIEXPORT jint JNICALL
         Java_com_example_core_NativeLib_inference(
                 JNIEnv *env,
-                jobject /* this */, jintArray arr) {
-    int result = 0;
+                jobject obj, jintArray arr) {
+    int result = SUCESS;
+
+    Processor* instance = getInstance(env, obj);
+    jsize size = env->GetArrayLength(arr);
+    jint* buff = env->GetIntArrayElements(arr, nullptr);
+
+    instance->inference(buff, size);
+
+    env->ReleaseIntArrayElements(arr, buff, 0);
 
     return result;
 }

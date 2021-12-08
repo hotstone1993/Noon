@@ -1,5 +1,7 @@
 package com.example.core
 
+import android.content.res.AssetManager
+
 class NativeLib {
 
     /**
@@ -9,7 +11,7 @@ class NativeLib {
     private var nativeInstance: Long = 0
 
     external fun create(): Int
-    external fun loadModel(path: String): Int
+    external fun loadModel(assetManager: AssetManager, modelPath: String, labelPath: String): Int
     external fun inference(arr: IntArray): Int
 
     companion object {

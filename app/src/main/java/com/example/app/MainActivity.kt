@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +25,8 @@ import java.util.concurrent.Executors
 import kotlin.random.Random
 
 class MainActivity: AppCompatActivity() {
+    private val MODEL_PATH = "coco_ssd_mobilenet_v1_1.0_quant.tflite"
+    private val LABEL_PATH = "coco_ssd_mobilenet_v1_1.0_labels.txt"
 
     private lateinit var activityCameraBinding: MainActivityBinding
     private lateinit var bitmapBuffer: Bitmap
@@ -44,6 +47,7 @@ class MainActivity: AppCompatActivity() {
         setContentView(activityCameraBinding.root)
 
         nativeLib.create()
+        nativeLib.loadModel(resources.assets, MODEL_PATH, LABEL_PATH)
     }
 
     /** Declare and bind preview and analysis use cases */
@@ -94,13 +98,14 @@ class MainActivity: AppCompatActivity() {
                 }
 
 
-                val arr = IntArray(bitmapBuffer.height * bitmapBuffer.width)
+                val input = IntArray(bitmapBuffer.height * bitmapBuffer.width)
 
                 for(y in 0 until bitmapBuffer.height) {
                     for(x in 0 until bitmapBuffer.width) {
-                        arr[bitmapBuffer.width * y + x] = bitmapBuffer[x, y]
+                        input[bitmapBuffer.width * y + x] = bitmapBuffer[x, y]
                     }
                 }
+                nativeLib.inference(input)
 
                  // Compute the FPS of the entire pipeline
                 val frameCount = 10
