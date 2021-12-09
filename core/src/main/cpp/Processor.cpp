@@ -33,7 +33,6 @@ int Processor::loadModel(const char* file, size_t fileSize) {
     // tasks so that the Interpreter can read the provided model.
     tflite::ops::builtin::BuiltinOpResolver resolver;
     tflite::InterpreterBuilder builder(*model, resolver);
-    std::unique_ptr<tflite::Interpreter> interpreter;
     builder(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
@@ -42,26 +41,18 @@ int Processor::loadModel(const char* file, size_t fileSize) {
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
 
-    // Fill input buffers
-    // TODO(user): Insert code to fill input tensors.
-    // Note: The buffer of the input tensor with index `i` of type T can
-    // be accessed with `T* input = interpreter->typed_input_tensor<T>(i);`
+    return result;
+}
+
+int Processor::inference(int8_t* arr, int size) {
+    int result = 0;
+
+    const std::vector<int>&input = interpreter->inputs();
 
     // Run inference
     TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
     printf("\n\n=== Post-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
-
-    // Read output buffers
-    // TODO(user): Insert getting data out code.
-    // Note: The buffer of the output tensor with index `i` of type T can
-    // be accessed with `T* output = interpreter->typed_output_tensor<T>(i);`
-
-    return result;
-}
-
-int Processor::inference(int* arr, int size) {
-    int result = 0;
 
     return result;
 }

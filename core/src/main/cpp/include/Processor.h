@@ -19,9 +19,11 @@ public:
     virtual ~Processor();
 
     int loadModel(const char* file, size_t fileSize);
-    int inference(int* arr, int size);
+    int inference(int8_t* arr, int size);
 private:
     int destroy();
+
+    std::unique_ptr<tflite::Interpreter> interpreter;
 };
 
 #endif //NOON_PROCESSOR_H

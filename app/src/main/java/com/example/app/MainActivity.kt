@@ -4,8 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.AssetManager
-import android.graphics.Bitmap
+import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -17,7 +16,6 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.get
 import androidx.lifecycle.LifecycleOwner
 import com.example.app.databinding.MainActivityBinding
 import com.example.core.NativeLib
@@ -29,7 +27,6 @@ class MainActivity: AppCompatActivity() {
     private val LABEL_PATH = "coco_ssd_mobilenet_v1_1.0_labels.txt"
 
     private lateinit var activityCameraBinding: MainActivityBinding
-    private lateinit var bitmapBuffer: Bitmap
 
     private val executor = Executors.newSingleThreadExecutor()
     private val permissions = listOf(Manifest.permission.CAMERA)
@@ -38,8 +35,9 @@ class MainActivity: AppCompatActivity() {
     private var lensFacing: Int = CameraSelector.LENS_FACING_BACK
 
     private var pauseAnalysis = false
-    private var imageRotationDegrees: Int = 0
     private val nativeLib = NativeLib()
+
+    private lateinit var input: ByteArray
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,6 +47,7 @@ class MainActivity: AppCompatActivity() {
         nativeLib.create()
         nativeLib.loadModel(resources.assets, MODEL_PATH, LABEL_PATH)
     }
+
 
     /** Declare and bind preview and analysis use cases */
     @RequiresApi(Build.VERSION_CODES.S)
@@ -77,37 +76,21 @@ class MainActivity: AppCompatActivity() {
             var lastFpsTimestamp = System.currentTimeMillis()
 
             imageAnalysis.setAnalyzer(executor, ImageAnalysis.Analyzer { image ->
-                if (!::bitmapBuffer.isInitialized) {
-                    // The image rotation and RGB image buffer are initialized only once
-                    // the analyzer has started running
-                    imageRotationDegrees = image.imageInfo.rotationDegrees
-
-                    bitmapBuffer = Bitmap.createBitmap(
-                        image.width, image.height, Bitmap.Config.ARGB_8888)
-                }
-
                 // Early exit: image analysis is in paused state
                 if (pauseAnalysis) {
                     image.close()
                     return@Analyzer
                 }
 
-                // Copy out RGB bits to our shared buffer
-                image.use {
-                    bitmapBuffer.copyPixelsFromBuffer(it.planes[0].buffer)
+                val pixelStride = image.planes.first().pixelStride
+                if(!::input.isInitialized) {
+                    input = ByteArray(image.width * image.height * pixelStride)
                 }
 
-
-                val input = IntArray(bitmapBuffer.height * bitmapBuffer.width)
-
-                for(y in 0 until bitmapBuffer.height) {
-                    for(x in 0 until bitmapBuffer.width) {
-                        input[bitmapBuffer.width * y + x] = bitmapBuffer[x, y]
-                    }
-                }
+                image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
                 nativeLib.inference(input)
 
-                 // Compute the FPS of the entire pipeline
+                 // Compute the FPS of the entire pipeline\
                 val frameCount = 10
                 if (++frameCounter % frameCount == 0) {
                     frameCounter = 0
@@ -116,6 +99,8 @@ class MainActivity: AppCompatActivity() {
                     val fps = 1000 * frameCount.toFloat() / delta
                     lastFpsTimestamp = now
                 }
+
+                image.close()
             })
 
             // Create a new camera selector each time, enforcing lens facing

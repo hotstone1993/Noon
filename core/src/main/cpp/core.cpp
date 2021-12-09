@@ -64,16 +64,16 @@ Java_com_example_core_NativeLib_loadModel(
 extern "C" JNIEXPORT jint JNICALL
         Java_com_example_core_NativeLib_inference(
                 JNIEnv *env,
-                jobject obj, jintArray arr) {
+                jobject obj, jbyteArray arr) {
     int result = SUCESS;
 
     Processor* instance = getInstance(env, obj);
     jsize size = env->GetArrayLength(arr);
-    jint* buff = env->GetIntArrayElements(arr, nullptr);
+    jbyte* buff = env->GetByteArrayElements(arr, nullptr);
 
     instance->inference(buff, size);
 
-    env->ReleaseIntArrayElements(arr, buff, 0);
+    env->ReleaseByteArrayElements(arr, buff, 0);
 
     return result;
 }
