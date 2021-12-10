@@ -5,10 +5,7 @@
 #include "include/Processor.h"
 
 const char* const INSTANCE = "nativeInstance";
-
-const int SUCESS = 0;
-const int FAIL = -1;
-
+s
 Processor* getInstance(JNIEnv* env, const jobject& obj) {
     jclass cls = env->GetObjectClass(obj);
     jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
@@ -61,6 +58,15 @@ Java_com_example_core_NativeLib_loadModel(
 
     return SUCESS;
 }
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_example_core_NativeLib_setup(
+        JNIEnv *env,
+        jobject obj,
+        jint width, jint height, jint pixelStride) {
+    return getInstance(env, obj)->setup(width, height, pixelStride);
+}
+
 extern "C" JNIEXPORT jint JNICALL
         Java_com_example_core_NativeLib_inference(
                 JNIEnv *env,

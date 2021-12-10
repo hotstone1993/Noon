@@ -12,6 +12,7 @@ class NativeLib {
 
     external fun create(): Int
     external fun loadModel(assetManager: AssetManager, modelPath: String, labelPath: String): Int
+    external fun setup(width: Int, height: Int, pixelStride: Int): Int
     external fun inference(arr: ByteArray): Int
 
     companion object {

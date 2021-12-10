@@ -9,20 +9,21 @@
 #define TFLITE_MINIMAL_CHECK(x)                              \
 if (!(x)) {                                                \
     fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
-    return -1; \
+    return FAIL; \
 }
 
 
 
-Processor::Processor() {
-
+Processor::Processor():
+    width(0),
+    height(0),
+    pixelStride(0) {
 }
 Processor::~Processor() {
     destroy();
 }
 
 int Processor::loadModel(const char* file, size_t fileSize) {
-    int result = 0;
     std::unique_ptr<tflite::FlatBufferModel> model =
             tflite::FlatBufferModel::BuildFromBuffer(file, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
@@ -41,12 +42,23 @@ int Processor::loadModel(const char* file, size_t fileSize) {
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
 
-    return result;
+    return SUCESS;
+}
+
+
+int Processor::setup(int width, int height, int pixelStride) {
+    if(width == 0 || height == 0 || pixelStride == 0) {
+        return FAIL;
+    }
+
+    this->width = width;
+    this->height = height;
+    this->pixelStride = pixelStride;
+
+    return SUCESS;
 }
 
 int Processor::inference(int8_t* arr, int size) {
-    int result = 0;
-
     const std::vector<int>&input = interpreter->inputs();
 
     // Run inference
@@ -54,11 +66,10 @@ int Processor::inference(int8_t* arr, int size) {
     printf("\n\n=== Post-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
 
-    return result;
+    return SUCESS;
 }
 
 int Processor::destroy() {
-    int result = 0;
 
-    return result;
+    return SUCESS;
 }

@@ -85,6 +85,7 @@ class MainActivity: AppCompatActivity() {
                 val pixelStride = image.planes.first().pixelStride
                 if(!::input.isInitialized) {
                     input = ByteArray(image.width * image.height * pixelStride)
+                    nativeLib.setup(width = image.width, height = image.height, pixelStride = pixelStride)
                 }
 
                 image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)

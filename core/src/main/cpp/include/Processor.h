@@ -12,6 +12,10 @@
 #include "tensorflow/lite/model.h"
 #include "tensorflow/lite/optional_debug_tools.h"
 
+enum {
+    SUCESS = 0,
+    FAIL = -1
+};
 
 class Processor {
 public:
@@ -20,10 +24,14 @@ public:
 
     int loadModel(const char* file, size_t fileSize);
     int inference(int8_t* arr, int size);
+    int setup(int width, int height, int pixelStride);
 private:
     int destroy();
 
     std::unique_ptr<tflite::Interpreter> interpreter;
+    int width;
+    int height;
+    int pixelStride;
 };
 
 #endif //NOON_PROCESSOR_H
