@@ -5,7 +5,7 @@
 #include "include/Processor.h"
 
 const char* const INSTANCE = "nativeInstance";
-s
+
 Processor* getInstance(JNIEnv* env, const jobject& obj) {
     jclass cls = env->GetObjectClass(obj);
     jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
@@ -16,7 +16,7 @@ Processor* getInstance(JNIEnv* env, const jobject& obj) {
 extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
         JNIEnv *env,
         jobject obj /* this */) {
-    int result = SUCESS;
+    int result = SUCCESS;
 
     Processor* newInstance = new Processor();
 
@@ -56,7 +56,7 @@ Java_com_example_core_NativeLib_loadModel(
 
     AAsset_close(asset);
 
-    return SUCESS;
+    return SUCCESS;
 }
 
 extern "C" JNIEXPORT jint JNICALL
@@ -71,7 +71,7 @@ extern "C" JNIEXPORT jint JNICALL
         Java_com_example_core_NativeLib_inference(
                 JNIEnv *env,
                 jobject obj, jbyteArray arr) {
-    int result = SUCESS;
+    int result = SUCCESS;
 
     Processor* instance = getInstance(env, obj);
     jsize size = env->GetArrayLength(arr);

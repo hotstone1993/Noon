@@ -13,8 +13,14 @@
 #include "tensorflow/lite/optional_debug_tools.h"
 
 enum {
-    SUCESS = 0,
+    SUCCESS = 0,
     FAIL = -1
+};
+
+struct ImageInfo {
+    int width;
+    int height;
+    int pixelStride;
 };
 
 class Processor {
@@ -23,15 +29,17 @@ public:
     virtual ~Processor();
 
     int loadModel(const char* file, size_t fileSize);
-    int inference(int8_t* arr, int size);
+    int inference(int8_t* inputBuffer, int size);
     int setup(int width, int height, int pixelStride);
 private:
+    void toProcessBuffer(int8_t* inputBuffer);
     int destroy();
 
     std::unique_ptr<tflite::Interpreter> interpreter;
-    int width;
-    int height;
-    int pixelStride;
+    ImageInfo inputInfo;
+    ImageInfo targetInfo;
+    int8_t* processBuffer;
+    float* outputBuffer;
 };
 
 #endif //NOON_PROCESSOR_H
