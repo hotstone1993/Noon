@@ -16,6 +16,11 @@ struct ImageInfo {
     int pixelStride;
 };
 
+struct Rectrangle {
+    int width;
+    int height;
+};
+
 #define DELETE(X) { \
     if(X != nullptr) { \
         delete X;       \

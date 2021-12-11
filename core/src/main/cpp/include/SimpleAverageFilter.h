@@ -15,6 +15,13 @@ public:
 
     virtual int setup(ImageInfo inputInfo, ImageInfo targetInfo) override;
     virtual int process(T* input, T* output) override;
+
+private:
+    void calculateKernelAndStep();
+
+    Rectrangle kernel;
+    unsigned int stepX;
+    unsigned int stepY;
 };
 #include "SimpleAverageFilter.hpp"
 #endif //NOON_SIMPLEAVERAGEFILTER_H
