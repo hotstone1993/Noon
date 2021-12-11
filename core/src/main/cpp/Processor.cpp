@@ -112,4 +112,5 @@ int Processor::destroy() {
 
 void Processor::toProcessBuffer(int8_t* inputBuffer) {
     // processBuffer
+    processBuffer = processBuffer;
 }
