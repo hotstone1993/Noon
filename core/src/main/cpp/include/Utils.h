@@ -30,4 +30,10 @@ struct ImageInfo {
     }                   \
 }
 
+#define TFLITE_MINIMAL_CHECK(x)                              \
+if (!(x)) {                                                \
+    fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
+    return FAIL; \
+}
+
 #endif //NOON_UTILS_H

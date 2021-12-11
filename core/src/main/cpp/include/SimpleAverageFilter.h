@@ -1,0 +1,20 @@
+//
+// Created by newst on 2021-12-11.
+//
+
+#ifndef NOON_SIMPLEAVERAGEFILTER_H
+#define NOON_SINCFILTER_H
+
+#include "ImageFilter.h"
+
+template <typename T>
+class SimpleAverageFilter: public ImageFilter<T> {
+public:
+    SimpleAverageFilter();
+    virtual ~SimpleAverageFilter();
+
+    virtual int setup(ImageInfo inputInfo, ImageInfo targetInfo) override;
+    virtual int process(T* input, T* output) override;
+};
+#include "SimpleAverageFilter.hpp"
+#endif //NOON_SIMPLEAVERAGEFILTER_H

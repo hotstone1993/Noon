@@ -3,21 +3,18 @@
 //
 
 #include "include/Processor.h"
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
+#include "include/SimpleAverageFilter.h"
 
 #define IMAGE_COUNT_INDEX 0
 #define IMAGE_WIDTH_INDEX 1
 #define IMAGE_HEIGHT_INDEX 2
 #define IMAGE_PIXEL_STRIDE_INDEX 3
 
-#define TFLITE_MINIMAL_CHECK(x)                              \
-if (!(x)) {                                                \
-    fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
-    return FAIL; \
-}
 
-Processor::Processor(): inputInfo(), processBuffer(nullptr), outputBuffer(nullptr) {
+Processor::Processor():
+    processedBuffer(nullptr),
+    outputBuffer(nullptr),
+    filter(nullptr) {
 }
 Processor::~Processor() {
     destroy();
@@ -51,9 +48,11 @@ int Processor::setup(int width, int height, int pixelStride) {
         return FAIL;
     }
 
-    inputInfo.width = width;
-    inputInfo.height = height;
-    inputInfo.pixelStride = pixelStride;
+    ImageInfo inputInfo{
+        width,
+        height,
+        pixelStride
+    };
 
     size_t outputSize = interpreter->outputs().size();
     if(outputBuffer == nullptr) {
@@ -67,24 +66,30 @@ int Processor::setup(int width, int height, int pixelStride) {
         return FAIL;
     }
 
-    targetInfo.width = tensor->dims->data[IMAGE_WIDTH_INDEX];
-    targetInfo.height = tensor->dims->data[IMAGE_HEIGHT_INDEX];
-    targetInfo.pixelStride = tensor->dims->data[IMAGE_PIXEL_STRIDE_INDEX];
+    ImageInfo targetInfo{
+        tensor->dims->data[IMAGE_WIDTH_INDEX],
+        tensor->dims->data[IMAGE_HEIGHT_INDEX],
+        tensor->dims->data[IMAGE_PIXEL_STRIDE_INDEX]
+    };
 
-    if(processBuffer == nullptr) {
-        processBuffer = new int8_t[targetInfo.width * targetInfo.height * targetInfo.pixelStride];
+    if(processedBuffer == nullptr) {
+        processedBuffer = new int8_t[targetInfo.width * targetInfo.height * targetInfo.pixelStride];
     } else {
         return FAIL;
     }
+    if(filter == nullptr) {
+        filter = new SimpleAverageFilter<int8_t>();
+    }
+    filter->setup(inputInfo, targetInfo);
 
     return SUCCESS;
 }
 
 int Processor::inference(int8_t* inputBuffer, int size) {
-    toProcessBuffer(inputBuffer);
+    filter->process(inputBuffer, processedBuffer);
 
     auto input = interpreter->typed_input_tensor<int8_t>(0);
-    input = processBuffer;
+    input = processedBuffer;
 
     // Run inference
     TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
@@ -100,17 +105,9 @@ int Processor::inference(int8_t* inputBuffer, int size) {
 ////////////////////////////////////////////////////////////////////////////
 
 int Processor::destroy() {
-    if(processBuffer != nullptr) {
-        delete[] processBuffer;
-    }
-    if(outputBuffer != nullptr) {
-        delete[] outputBuffer;
-    }
+    DELETE_ARRAY(processedBuffer)
+    DELETE_ARRAY(outputBuffer)
+    DELETE(filter)
 
     return SUCCESS;
-}
-
-void Processor::toProcessBuffer(int8_t* inputBuffer) {
-    // processBuffer
-    processBuffer = processBuffer;
 }
