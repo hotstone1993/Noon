@@ -57,6 +57,7 @@ int Processor::setup(int width, int height, int pixelStride) {
     size_t outputSize = interpreter->outputs().size();
     if(outputBuffer == nullptr) {
         outputBuffer = new float[outputSize];
+        memset(outputBuffer, 0.0f, sizeof(float) * outputSize);
     } else {
         return FAIL;
     }
@@ -74,6 +75,7 @@ int Processor::setup(int width, int height, int pixelStride) {
 
     if(processedBuffer == nullptr) {
         processedBuffer = new int8_t[targetInfo.width * targetInfo.height * targetInfo.pixelStride];
+        memset(processedBuffer, 0, sizeof(int8_t) * targetInfo.width * targetInfo.height * targetInfo.pixelStride);
     } else {
         return FAIL;
     }
