@@ -19,14 +19,13 @@ public:
     virtual ~Processor();
 
     int loadModel(const char* file, size_t fileSize);
-    int inference(int8_t* inputBuffer, int size);
+    int inference(int8_t* inputBuffer, float* output);
     int setup(int width, int height, int pixelStride);
 private:
     int destroy();
 
     std::unique_ptr<tflite::Interpreter> interpreter;
     int8_t* processedBuffer;
-    float* outputBuffer;
 
     ImageFilter<int8_t>* filter;
 };

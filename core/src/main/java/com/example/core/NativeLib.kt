@@ -13,7 +13,7 @@ class NativeLib {
     external fun create(): Int
     external fun loadModel(assetManager: AssetManager, modelPath: String, labelPath: String): Int
     external fun setup(width: Int, height: Int, pixelStride: Int): Int
-    external fun inference(arr: ByteArray): Int
+    external fun inference(input: ByteArray, output: FloatArray): Int
 
     companion object {
         // Used to load the 'core' library on application startup.

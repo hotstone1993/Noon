@@ -13,7 +13,6 @@
 
 Processor::Processor():
     processedBuffer(nullptr),
-    outputBuffer(nullptr),
     filter(nullptr) {
 }
 Processor::~Processor() {
@@ -54,14 +53,6 @@ int Processor::setup(int width, int height, int pixelStride) {
         pixelStride
     };
 
-    size_t outputSize = interpreter->outputs().size();
-    if(outputBuffer == nullptr) {
-        outputBuffer = new float[outputSize];
-        memset(outputBuffer, 0.0f, sizeof(float) * outputSize);
-    } else {
-        return FAIL;
-    }
-
     TfLiteTensor* tensor = interpreter->input_tensor(0);
     if(tensor->dims->size <= IMAGE_PIXEL_STRIDE_INDEX) {
         return FAIL;
@@ -87,7 +78,7 @@ int Processor::setup(int width, int height, int pixelStride) {
     return SUCCESS;
 }
 
-int Processor::inference(int8_t* inputBuffer, int size) {
+int Processor::inference(int8_t* inputBuffer, float* output) {
     filter->process(inputBuffer, processedBuffer);
 
     auto input = interpreter->typed_input_tensor<int8_t>(0);
@@ -98,7 +89,7 @@ int Processor::inference(int8_t* inputBuffer, int size) {
 
     std::vector<int> outputIndices = interpreter->outputs();
     for(int i = 0; i < outputIndices.size(); ++i) {
-        outputBuffer[i] = interpreter->typed_output_tensor<float>(i)[0];
+        output[i] = interpreter->typed_output_tensor<float>(i)[0];
     }
 
     return SUCCESS;
@@ -108,7 +99,6 @@ int Processor::inference(int8_t* inputBuffer, int size) {
 
 int Processor::destroy() {
     DELETE_ARRAY(processedBuffer)
-    DELETE_ARRAY(outputBuffer)
     DELETE(filter)
 
     return SUCCESS;

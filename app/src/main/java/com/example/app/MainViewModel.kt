@@ -13,6 +13,7 @@ class MainViewModel: ViewModel() {
     private val nativeLib = NativeLib()
 
     private lateinit var input: ByteArray
+    private lateinit var output: FloatArray
 
     private var frameCounter = 0
     private var lastFpsTimestamp = System.currentTimeMillis()
@@ -30,11 +31,12 @@ class MainViewModel: ViewModel() {
         val pixelStride = image.planes.first().pixelStride
         if(!::input.isInitialized) {
             input = ByteArray(image.width * image.height * pixelStride)
+            output = FloatArray(10)
             nativeLib.setup(width = image.width, height = image.height, pixelStride = pixelStride)
         }
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
-        nativeLib.inference(input)
+        nativeLib.inference(input, output)
 
         // Compute the FPS of the entire pipeline\
         val frameCount = 10

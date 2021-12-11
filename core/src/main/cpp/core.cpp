@@ -55,6 +55,7 @@ Java_com_example_core_NativeLib_loadModel(
     instance->loadModel(buffer, fileSize);
 
     AAsset_close(asset);
+    delete[] buffer;
 
     return SUCCESS;
 }
@@ -70,16 +71,19 @@ Java_com_example_core_NativeLib_setup(
 extern "C" JNIEXPORT jint JNICALL
         Java_com_example_core_NativeLib_inference(
                 JNIEnv *env,
-                jobject obj, jbyteArray arr) {
+                jobject obj,
+                jbyteArray input,
+                jfloatArray output) {
     int result = SUCCESS;
 
     Processor* instance = getInstance(env, obj);
-    jsize size = env->GetArrayLength(arr);
-    jbyte* buff = env->GetByteArrayElements(arr, nullptr);
+    jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
+    jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
 
-    instance->inference(buff, size);
+    instance->inference(inputBuffer, outputBuffer);
 
-    env->ReleaseByteArrayElements(arr, buff, 0);
+    env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
+    env->ReleaseFloatArrayElements(output, outputBuffer, 0);
 
     return result;
 }
