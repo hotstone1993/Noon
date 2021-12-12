@@ -15,6 +15,13 @@ public:
 
     virtual int setup(ImageInfo inputInfo, ImageInfo targetInfo) = 0;
     virtual int process(T* input, T* output) = 0;
+
+    const ImageInfo& getTargetInfo() const {
+        return targetInfo;
+    }
+    const ImageInfo& getInputInfo() const {
+        return inputInfo;
+    }
 protected:
     inline T getInputValue(T* buf, int w, int h, int ps) {
         if(buf == nullptr || inputInfo.width == 0 || inputInfo.height == 0 || inputInfo.pixelStride == 0) {

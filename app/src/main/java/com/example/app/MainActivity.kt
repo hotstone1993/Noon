@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.*
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -19,7 +18,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.example.app.databinding.MainActivityBinding
-import com.example.core.NativeLib
 import java.util.concurrent.Executors
 import kotlin.random.Random
 

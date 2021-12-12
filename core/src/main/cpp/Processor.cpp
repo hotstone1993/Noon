@@ -5,6 +5,8 @@
 #include "include/Processor.h"
 #include "include/SimpleAverageFilter.h"
 
+#define INPUT_INDEX 0
+
 #define IMAGE_COUNT_INDEX 0
 #define IMAGE_WIDTH_INDEX 1
 #define IMAGE_HEIGHT_INDEX 2
@@ -20,17 +22,10 @@ Processor::~Processor() {
 }
 
 int Processor::loadModel(const char* file, size_t fileSize) {
-    std::unique_ptr<tflite::FlatBufferModel> model =
-            tflite::FlatBufferModel::BuildFromBuffer(file, fileSize);
+    model = tflite::FlatBufferModel::BuildFromBuffer(file, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
-
-    // Build the interpreter with the InterpreterBuilder.
-    // Note: all Interpreters should be built with the InterpreterBuilder,
-    // which allocates memory for the Interpreter and does various set up
-    // tasks so that the Interpreter can read the provided model.
-    tflite::ops::builtin::BuiltinOpResolver resolver;
-    tflite::InterpreterBuilder builder(*model, resolver);
-    builder(&interpreter);
+    builder = std::make_unique<tflite::InterpreterBuilder>(*model, resolver);
+    builder->operator()(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
     // Allocate tensor buffers.
@@ -53,7 +48,7 @@ int Processor::setup(int width, int height, int pixelStride) {
         pixelStride
     };
 
-    TfLiteTensor* tensor = interpreter->input_tensor(0);
+    TfLiteTensor* tensor = interpreter->input_tensor(INPUT_INDEX);
     if(tensor->dims->size <= IMAGE_PIXEL_STRIDE_INDEX) {
         return FAIL;
     }
@@ -65,24 +60,25 @@ int Processor::setup(int width, int height, int pixelStride) {
     };
 
     if(processedBuffer == nullptr) {
-        processedBuffer = new int8_t[targetInfo.width * targetInfo.height * targetInfo.pixelStride];
+        processedBuffer = new uint8_t[targetInfo.width * targetInfo.height * targetInfo.pixelStride];
         memset(processedBuffer, 0, sizeof(int8_t) * targetInfo.width * targetInfo.height * targetInfo.pixelStride);
     } else {
         return FAIL;
     }
     if(filter == nullptr) {
-        filter = new SimpleAverageFilter<int8_t>();
+        filter = new SimpleAverageFilter<uint8_t>();
     }
     filter->setup(inputInfo, targetInfo);
 
     return SUCCESS;
 }
 
-int Processor::inference(int8_t* inputBuffer, float* output) {
+int Processor::inference(uint8_t* inputBuffer, float* output) {
     filter->process(inputBuffer, processedBuffer);
 
-    auto input = interpreter->typed_input_tensor<int8_t>(0);
-    input = processedBuffer;
+    uint8_t* tensorInput = interpreter->typed_tensor<uint8_t>(interpreter->inputs()[INPUT_INDEX]);
+    size_t size = filter->getTargetInfo().width * filter->getTargetInfo().height * filter->getTargetInfo().pixelStride;
+    memcpy(tensorInput, processedBuffer, sizeof(uint8_t) * size);
 
     // Run inference
     TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);

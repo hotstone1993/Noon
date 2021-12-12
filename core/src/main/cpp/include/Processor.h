@@ -19,15 +19,17 @@ public:
     virtual ~Processor();
 
     int loadModel(const char* file, size_t fileSize);
-    int inference(int8_t* inputBuffer, float* output);
+    int inference(uint8_t* inputBuffer, float* output);
     int setup(int width, int height, int pixelStride);
 private:
     int destroy();
-
+    std::unique_ptr<tflite::FlatBufferModel> model;
+    tflite::ops::builtin::BuiltinOpResolver resolver;
     std::unique_ptr<tflite::Interpreter> interpreter;
-    int8_t* processedBuffer;
+    std::unique_ptr<tflite::InterpreterBuilder> builder;
 
-    ImageFilter<int8_t>* filter;
+    uint8_t* processedBuffer;
+    ImageFilter<uint8_t>* filter;
 };
 
 #endif //NOON_PROCESSOR_H

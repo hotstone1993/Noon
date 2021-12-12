@@ -80,7 +80,7 @@ extern "C" JNIEXPORT jint JNICALL
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
     jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
 
-    instance->inference(inputBuffer, outputBuffer);
+    instance->inference(reinterpret_cast<uint8_t *>(inputBuffer), outputBuffer);
 
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
     env->ReleaseFloatArrayElements(output, outputBuffer, 0);

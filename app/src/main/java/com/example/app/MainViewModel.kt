@@ -1,6 +1,7 @@
 package com.example.app
 
 import android.content.res.AssetManager
+import android.util.Log
 import androidx.camera.core.*
 import androidx.lifecycle.ViewModel
 import com.example.core.NativeLib
@@ -35,6 +36,7 @@ class MainViewModel: ViewModel() {
             nativeLib.setup(width = image.width, height = image.height, pixelStride = pixelStride)
         }
 
+        Log.e("output_test", "output0: ${output[0]}, output1: ${output[1]}, output2: ${output[2]}, output3: ${output[3]}")
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
         nativeLib.inference(input, output)
 
