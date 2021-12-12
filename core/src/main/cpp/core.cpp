@@ -31,15 +31,13 @@ extern "C" JNIEXPORT jint JNICALL
 Java_com_example_core_NativeLib_loadModel(
         JNIEnv *env,
         jobject obj,
-        jobject assetManager, jstring modelPath, jstring labelPath) {
+        jobject assetManager, jstring modelPath) {
 
     const char* model = env->GetStringUTFChars(modelPath, nullptr);
-    const char* label = env->GetStringUTFChars(labelPath, nullptr);
 
     AAssetManager *manager = AAssetManager_fromJava(env, assetManager);
     AAsset* asset = AAssetManager_open(manager, model, AASSET_MODE_UNKNOWN);
     env->ReleaseStringUTFChars(modelPath, model);
-    env->ReleaseStringUTFChars(labelPath, label);
 
     if ( asset == nullptr )
         return FAIL;
