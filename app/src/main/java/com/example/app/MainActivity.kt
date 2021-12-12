@@ -17,23 +17,32 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import com.example.app.databinding.MainActivityBinding
+import org.tensorflow.lite.support.common.FileUtil
 import java.util.concurrent.Executors
 import kotlin.random.Random
 
 class MainActivity: AppCompatActivity() {
+    private val LABELS_PATH = "coco_ssd_mobilenet_v1_1.0_labels.txt"
+
     private lateinit var activityCameraBinding: MainActivityBinding
     private val vm: MainViewModel by viewModels()
     private val permissions = listOf(Manifest.permission.CAMERA)
     private val permissionsRequestCode = Random.nextInt(0, 10000)
-
     private val executor = Executors.newSingleThreadExecutor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityCameraBinding = MainActivityBinding.inflate(layoutInflater)
         setContentView(activityCameraBinding.root)
+
+        vm.tvString.observe(this, Observer {
+            activityCameraBinding.tvResult.text = it
+        })
+
         vm.initNatvieLibrary(resources.assets)
+        vm.setLabels(FileUtil.loadLabels(this, LABELS_PATH))
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
