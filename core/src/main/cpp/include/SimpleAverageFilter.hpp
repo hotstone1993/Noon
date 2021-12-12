@@ -38,14 +38,15 @@ int SimpleAverageFilter<T>::process(T* input, T* output) {
             }
         }
     }
+
     return SUCCESS;
 }
 
 template<typename T>
 
 void SimpleAverageFilter<T>::calculateKernelAndStep() {
-    kernel.width = 2;
+    kernel.width = 1;
     kernel.height = 1;
-    stepX= 2;
+    stepX= 1;
     stepY = 1;
 }

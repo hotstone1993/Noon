@@ -3,7 +3,6 @@ package com.example.app
 import android.content.res.AssetManager
 import android.util.Log
 import androidx.camera.core.*
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.core.NativeLib
@@ -60,5 +59,9 @@ class MainViewModel: ViewModel() {
         }
 
         image.close()
+    }
+
+    fun saveButtonClickEvent() {
+        nativeLib.saveImage()
     }
 }

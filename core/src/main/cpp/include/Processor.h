@@ -21,6 +21,7 @@ public:
     int loadModel(const char* file, size_t fileSize);
     int inference(uint8_t* inputBuffer, float* output);
     int setup(int width, int height, int pixelStride);
+    void saveImage();
 private:
     int destroy();
     std::unique_ptr<tflite::FlatBufferModel> model;
@@ -28,6 +29,7 @@ private:
     std::unique_ptr<tflite::Interpreter> interpreter;
     std::unique_ptr<tflite::InterpreterBuilder> builder;
 
+    bool saveImageFlag;
     uint8_t* processedBuffer;
     ImageFilter<uint8_t>* filter;
 };

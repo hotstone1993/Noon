@@ -14,9 +14,15 @@ project("core")
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+set( THIRDPARTY_PATH ../../../../thirdparty )
+
 set( SOURCE_PATH_LIST
         core.cpp
-        Processor.cpp)
+        Processor.cpp
+        ${THIRDPARTY_PATH}/lodepng/lodepng.cpp
+        ${THIRDPARTY_PATH}/lodepng/lodepng_fuzzer.cpp
+        ${THIRDPARTY_PATH}/lodepng/lodepng_util.cpp
+        ${THIRDPARTY_PATH}/lodepng/pngdetail.cpp)
 
 add_library( # Sets the name of the library.
         ${PROJECT_NAME}
@@ -45,7 +51,8 @@ find_library( # Sets the name of the path variable.
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         include
-        ../../../../thirdparty/tensorflow/)
+        ${THIRDPARTY_PATH}/tensorflow/
+        ${THIRDPARTY_PATH}/lodepng)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this

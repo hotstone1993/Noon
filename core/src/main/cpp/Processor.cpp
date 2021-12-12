@@ -4,6 +4,7 @@
 
 #include "include/Processor.h"
 #include "include/SimpleAverageFilter.h"
+#include "lodepng.h"
 
 #define INPUT_INDEX 0
 
@@ -15,7 +16,8 @@
 
 Processor::Processor():
     processedBuffer(nullptr),
-    filter(nullptr) {
+    filter(nullptr),
+    saveImageFlag(false) {
 }
 Processor::~Processor() {
     destroy();
@@ -76,6 +78,32 @@ int Processor::setup(int width, int height, int pixelStride) {
 int Processor::inference(uint8_t* inputBuffer, float* output) {
     filter->process(inputBuffer, processedBuffer);
 
+    if(saveImageFlag) {
+        std::vector<std::uint8_t> pngBuffer(filter->getTargetInfo().height * filter->getTargetInfo().width * 4);
+
+        for(unsigned int h = 0; h < filter->getTargetInfo().height; ++h)
+        {
+            for(unsigned int w = 0; w < filter->getTargetInfo().width; ++w)
+            {
+                for(unsigned int ps = 0; ps < filter->getTargetInfo().pixelStride; ++ps) {
+                    unsigned int pos1 = (filter->getTargetInfo().width * 4) * h + 4 * w;
+                    unsigned int pos2 = (filter->getTargetInfo().width * filter->getTargetInfo().pixelStride) * h + filter->getTargetInfo().pixelStride * w;
+                    pngBuffer[pos1] = processedBuffer[pos2];
+                    pngBuffer[pos1 + 1] = processedBuffer[pos2 + 1];
+                    pngBuffer[pos1 + 2] = processedBuffer[pos2 + 2];
+                    pngBuffer[pos1 + 3] = 255;
+
+                }
+            }
+        }
+
+        std::vector<std::uint8_t> imageBuffer;
+        lodepng::encode(imageBuffer, pngBuffer, filter->getTargetInfo().width, filter->getTargetInfo().height);
+        lodepng::save_file(imageBuffer, "/sdcard/Test/SomeImage.png");
+
+        saveImageFlag = false;
+    }
+
     uint8_t* tensorInput = interpreter->typed_tensor<uint8_t>(interpreter->inputs()[INPUT_INDEX]);
     size_t size = filter->getTargetInfo().width * filter->getTargetInfo().height * filter->getTargetInfo().pixelStride;
     memcpy(tensorInput, processedBuffer, sizeof(uint8_t) * size);
@@ -85,10 +113,15 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
 
     std::vector<int> outputIndices = interpreter->outputs();
     for(int i = 0; i < outputIndices.size(); ++i) {
-        output[i] = interpreter->typed_output_tensor<float>(i)[0];
+        output[i] = interpreter->typed_tensor<float>(outputIndices[i])[0];
     }
 
     return SUCCESS;
+}
+
+
+void Processor::saveImage() {
+    saveImageFlag = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////

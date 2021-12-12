@@ -1,3 +1,6 @@
 [submodule "thirdparty/tensorflow"]
 	path = thirdparty/tensorflow
 	url = https://github.com/tensorflow/tensorflow.git
+[submodule "thirdparty/lodepng"]
+	path = thirdparty/lodepng
+	url = https://github.com/lvandeve/lodepng.git

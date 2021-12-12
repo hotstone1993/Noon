@@ -40,6 +40,9 @@ class MainActivity: AppCompatActivity() {
         vm.tvString.observe(this, Observer {
             activityCameraBinding.tvResult.text = it
         })
+        activityCameraBinding.btnSave.setOnClickListener {
+            vm.saveButtonClickEvent()
+        }
 
         vm.initNatvieLibrary(resources.assets)
         vm.setLabels(FileUtil.loadLabels(this, LABELS_PATH))

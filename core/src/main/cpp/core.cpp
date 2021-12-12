@@ -86,3 +86,14 @@ extern "C" JNIEXPORT jint JNICALL
     return result;
 }
 
+extern "C" JNIEXPORT jint JNICALL
+Java_com_example_core_NativeLib_saveImage(
+        JNIEnv *env,
+        jobject obj) {
+    int result = SUCCESS;
+
+    Processor* instance = getInstance(env, obj);
+    instance->saveImage();
+
+    return result;
+}
