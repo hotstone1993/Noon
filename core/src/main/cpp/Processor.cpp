@@ -91,7 +91,7 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
                     pngBuffer[pos1] = processedBuffer[pos2];
                     pngBuffer[pos1 + 1] = processedBuffer[pos2 + 1];
                     pngBuffer[pos1 + 2] = processedBuffer[pos2 + 2];
-                    pngBuffer[pos1 + 3] = 255;
+                    pngBuffer[pos1 + 3] = processedBuffer[pos2 + 3];
 
                 }
             }
@@ -104,9 +104,8 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
         saveImageFlag = false;
     }
 
-    uint8_t* tensorInput = interpreter->typed_tensor<uint8_t>(interpreter->inputs()[INPUT_INDEX]);
     size_t size = filter->getTargetInfo().width * filter->getTargetInfo().height * filter->getTargetInfo().pixelStride;
-    memcpy(tensorInput, processedBuffer, sizeof(uint8_t) * size);
+    memcpy(interpreter->typed_input_tensor<uint8_t>(0), processedBuffer, sizeof(uint8_t) * size);
 
     // Run inference
     TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);

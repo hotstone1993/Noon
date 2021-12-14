@@ -50,12 +50,12 @@ Java_com_example_core_NativeLib_loadModel(
        return FAIL;
 
     Processor* instance =  getInstance(env, obj);
-    instance->loadModel(buffer, fileSize);
+    int result = instance->loadModel(buffer, fileSize);
 
     AAsset_close(asset);
     delete[] buffer;
 
-    return SUCCESS;
+    return result;
 }
 
 extern "C" JNIEXPORT jint JNICALL
@@ -78,7 +78,7 @@ extern "C" JNIEXPORT jint JNICALL
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
     jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
 
-    instance->inference(reinterpret_cast<uint8_t *>(inputBuffer), outputBuffer);
+    result = instance->inference(reinterpret_cast<uint8_t *>(inputBuffer), outputBuffer);
 
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
     env->ReleaseFloatArrayElements(output, outputBuffer, 0);
@@ -86,7 +86,7 @@ extern "C" JNIEXPORT jint JNICALL
     return result;
 }
 
-extern "C" JNIEXPORT jint JNICALL
+extern "C" JNIEXPORT void JNICALL
 Java_com_example_core_NativeLib_saveImage(
         JNIEnv *env,
         jobject obj) {
@@ -94,6 +94,4 @@ Java_com_example_core_NativeLib_saveImage(
 
     Processor* instance = getInstance(env, obj);
     instance->saveImage();
-
-    return result;
 }
