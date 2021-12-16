@@ -29,6 +29,7 @@ private:
     std::unique_ptr<tflite::Interpreter> interpreter;
     std::unique_ptr<tflite::InterpreterBuilder> builder;
 
+    char* modelBuffer;
     bool saveImageFlag;
     uint8_t* processedBuffer;
     ImageFilter<uint8_t>* filter;

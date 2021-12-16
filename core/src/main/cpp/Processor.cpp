@@ -17,14 +17,17 @@
 Processor::Processor():
     processedBuffer(nullptr),
     filter(nullptr),
-    saveImageFlag(false) {
+    saveImageFlag(false), modelBuffer(nullptr) {
 }
 Processor::~Processor() {
     destroy();
 }
 
 int Processor::loadModel(const char* file, size_t fileSize) {
-    model = tflite::FlatBufferModel::BuildFromBuffer(file, fileSize);
+    modelBuffer = new char[fileSize];
+    memcpy(modelBuffer, file, sizeof(char) * fileSize);
+
+    model = tflite::FlatBufferModel::VerifyAndBuildFromBuffer(modelBuffer, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
     builder = std::make_unique<tflite::InterpreterBuilder>(*model, resolver);
     builder->operator()(&interpreter);
@@ -127,6 +130,7 @@ void Processor::saveImage() {
 
 int Processor::destroy() {
     DELETE_ARRAY(processedBuffer)
+    DELETE_ARRAY(modelBuffer)
     DELETE(filter)
 
     return SUCCESS;
