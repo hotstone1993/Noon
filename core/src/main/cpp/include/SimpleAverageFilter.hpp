@@ -30,11 +30,11 @@ int SimpleAverageFilter<T>::process(T* input, T* output) {
 
                 for(unsigned int kh = h; kh < h + kernel.height; ++kh) {
                     for(unsigned int kw = w; kw < w + kernel.height; ++kw) {
-                        sum += this->getInputValue(input, kw, kh, ps);
+                        sum += this->getInputValue(input, kh, kw, ps);
                     }
                 }
 
-                this->setTargetValue(output, ow, oh, ps, sum / (kernel.height * kernel.height));
+                this->setTargetValue(output, this->targetInfo.width - ow - 1, oh, ps, sum / (kernel.height * kernel.height));
             }
         }
     }
