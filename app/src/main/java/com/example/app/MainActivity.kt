@@ -4,8 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.RectF
 import android.os.Build
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +23,7 @@ import androidx.lifecycle.Observer
 import com.example.app.databinding.MainActivityBinding
 import org.tensorflow.lite.support.common.FileUtil
 import java.util.concurrent.Executors
+import kotlin.math.min
 import kotlin.random.Random
 
 class MainActivity: AppCompatActivity() {
@@ -40,6 +43,19 @@ class MainActivity: AppCompatActivity() {
         vm.tvString.observe(this, Observer {
             activityCameraBinding.tvResult.text = it
         })
+        vm.rect.observe(this) {
+            val location = mapOutputCoordinates(it)
+            (activityCameraBinding.boxPrediction).apply {
+                val currentLayoutParams = layoutParams as ViewGroup.MarginLayoutParams
+
+                currentLayoutParams.topMargin = location.top.toInt()
+                currentLayoutParams.leftMargin = location.left.toInt()
+                currentLayoutParams.width = min(activityCameraBinding.viewFinder.width, location.right.toInt() - location.left.toInt())
+                currentLayoutParams.height = min(activityCameraBinding.viewFinder.height, location.bottom.toInt() - location.top.toInt())
+
+                layoutParams = currentLayoutParams
+            }
+        }
         activityCameraBinding.btnSave.setOnClickListener {
             vm.saveButtonClickEvent()
         }
@@ -118,5 +134,37 @@ class MainActivity: AppCompatActivity() {
     /** Convenience method used to check if all permissions required by this app are granted */
     private fun hasPermissions(context: Context) = permissions.all {
         ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun mapOutputCoordinates(location: RectF): RectF {
+        // Step 1: map location to the preview coordinates
+        val previewLocation = RectF(
+            location.left * activityCameraBinding.viewFinder.width,
+            location.top * activityCameraBinding.viewFinder.height,
+            location.right * activityCameraBinding.viewFinder.width,
+            location.bottom * activityCameraBinding.viewFinder.height
+        )
+        val correctedLocation = previewLocation
+
+        // Step 3: compensate for 1:1 to 4:3 aspect ratio conversion + small margin
+        val margin = 0.1f
+        val requestedRatio = 4f / 3f
+        val midX = (correctedLocation.left + correctedLocation.right) / 2f
+        val midY = (correctedLocation.top + correctedLocation.bottom) / 2f
+        return if (activityCameraBinding.viewFinder.width < activityCameraBinding.viewFinder.height) {
+            RectF(
+                midX - (1f + margin) * requestedRatio * correctedLocation.width() / 2f,
+                midY - (1f - margin) * correctedLocation.height() / 2f,
+                midX + (1f + margin) * requestedRatio * correctedLocation.width() / 2f,
+                midY + (1f - margin) * correctedLocation.height() / 2f
+            )
+        } else {
+            RectF(
+                midX - (1f - margin) * correctedLocation.width() / 2f,
+                midY - (1f + margin) * requestedRatio * correctedLocation.height() / 2f,
+                midX + (1f - margin) * correctedLocation.width() / 2f,
+                midY + (1f + margin) * requestedRatio * correctedLocation.height() / 2f
+            )
+        }
     }
 }

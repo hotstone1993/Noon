@@ -1,7 +1,7 @@
 package com.example.app
 
 import android.content.res.AssetManager
-import android.util.Log
+import android.graphics.RectF
 import androidx.camera.core.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,6 +21,7 @@ class MainViewModel: ViewModel() {
 
     private lateinit var labels: List<String>
     val tvString = MutableLiveData<String>()
+    val rect = MutableLiveData<RectF>()
 
     fun setLabels(labels: List<String>) {
         this.labels = labels
@@ -43,10 +44,10 @@ class MainViewModel: ViewModel() {
             nativeLib.setup(width = image.width, height = image.height, pixelStride = pixelStride)
         }
 
-        Log.e("output_test", "output0: ${output[0]}, output1: ${output[1]}, output2: ${output[2]}, output3: ${output[3]}")
-        tvString.postValue("${labels[output[1].toInt()]}: ${output[2]}")
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
         nativeLib.inference(input, output)
+        tvString.postValue("${labels[output[4].toInt() + 1]}: ${output[5]}")
+        rect.postValue(RectF(output[1], output[0], output[3], output[2]))
 
         // Compute the FPS of the entire pipeline\
         val frameCount = 10

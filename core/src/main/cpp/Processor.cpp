@@ -94,7 +94,7 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
                     pngBuffer[pos1] = processedBuffer[pos2];
                     pngBuffer[pos1 + 1] = processedBuffer[pos2 + 1];
                     pngBuffer[pos1 + 2] = processedBuffer[pos2 + 2];
-                    pngBuffer[pos1 + 3] = processedBuffer[pos2 + 3];
+                    pngBuffer[pos1 + 3] = 255;
 
                 }
             }
@@ -114,8 +114,15 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
     TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
 
     std::vector<int> outputIndices = interpreter->outputs();
+    int idx = 0;
     for(int i = 0; i < outputIndices.size(); ++i) {
-        output[i] = interpreter->typed_tensor<float>(outputIndices[i])[0];
+        if(i == 0) {
+            for(int j = 0; j < 4; ++j) {
+                output[idx++] = interpreter->typed_tensor<float>(outputIndices[i])[j];
+            }
+        } else {
+            output[idx++] = interpreter->typed_tensor<float>(outputIndices[i])[0];
+        }
     }
 
     return SUCCESS;
