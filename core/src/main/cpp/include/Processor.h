@@ -11,6 +11,7 @@
 #include "tensorflow/lite/kernels/register.h"
 #include "tensorflow/lite/model.h"
 #include "tensorflow/lite/optional_debug_tools.h"
+#include "tensorflow/lite/delegates/gpu/delegate.h"
 #include "ImageFilter.h"
 
 class Processor {
@@ -28,6 +29,7 @@ private:
     tflite::ops::builtin::BuiltinOpResolver resolver;
     std::unique_ptr<tflite::Interpreter> interpreter;
     std::unique_ptr<tflite::InterpreterBuilder> builder;
+    TfLiteDelegate* delegate;
 
     char* modelBuffer;
     bool saveImageFlag;

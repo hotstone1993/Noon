@@ -61,6 +61,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries( # Specifies the target library.
                         ${PROJECT_NAME} PUBLIC
                         ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libtensorflowlite.so
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libtensorflowlite_gpu_delegate.so
                         android
                        # Links the target library to the log library
                        # included in the NDK.

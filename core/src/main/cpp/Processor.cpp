@@ -17,7 +17,9 @@
 Processor::Processor():
     processedBuffer(nullptr),
     filter(nullptr),
-    saveImageFlag(false), modelBuffer(nullptr) {
+    saveImageFlag(false),
+    modelBuffer(nullptr),
+    delegate(nullptr) {
 }
 Processor::~Processor() {
     destroy();
@@ -33,8 +35,11 @@ int Processor::loadModel(const char* file, size_t fileSize) {
     builder->operator()(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
-    // Allocate tensor buffers.
-    TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
+    TfLiteGpuDelegateOptionsV2 option = TfLiteGpuDelegateOptionsV2Default();
+    delegate = TfLiteGpuDelegateV2Create(&option);
+    TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(delegate) == kTfLiteOk);
+
+//    TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
 
@@ -139,6 +144,7 @@ int Processor::destroy() {
     DELETE_ARRAY(processedBuffer)
     DELETE_ARRAY(modelBuffer)
     DELETE(filter)
+    TfLiteGpuDelegateV2Delete(delegate);
 
     return SUCCESS;
 }
