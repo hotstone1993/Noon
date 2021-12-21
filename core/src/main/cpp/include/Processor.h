@@ -23,6 +23,7 @@ public:
     int inference(uint8_t* inputBuffer, float* output);
     int setup(int width, int height, int pixelStride);
     void saveImage();
+    const std::string& getBenchmark();
 private:
     int destroy();
     std::unique_ptr<tflite::FlatBufferModel> model;
@@ -35,6 +36,7 @@ private:
     bool saveImageFlag;
     uint8_t* processedBuffer;
     ImageFilter<uint8_t>* filter;
+    std::string benchmarkResult;
 };
 
 #endif //NOON_PROCESSOR_H

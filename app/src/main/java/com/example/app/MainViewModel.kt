@@ -23,6 +23,7 @@ class MainViewModel: ViewModel() {
     private lateinit var labels: List<String>
     val tvString = MutableLiveData<String>()
     val rect = MutableLiveData<RectF>()
+    val tvBenchmark = MutableLiveData<String>()
 
     fun setLabels(labels: List<String>) {
         this.labels = labels
@@ -54,6 +55,7 @@ class MainViewModel: ViewModel() {
             tvString.postValue("")
             rect.postValue(RectF(0.0f, 0.0f, 0.0f, 0.0f))
         }
+        tvBenchmark.postValue(nativeLib.getBenchmark())
 
         // Compute the FPS of the entire pipeline\
         val frameCount = 10

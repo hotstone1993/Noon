@@ -90,8 +90,15 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_core_NativeLib_saveImage(
         JNIEnv *env,
         jobject obj) {
-    int result = SUCCESS;
-
     Processor* instance = getInstance(env, obj);
     instance->saveImage();
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_example_core_NativeLib_getBenchmark(JNIEnv *env, jobject obj) {
+    Processor* instance = getInstance(env, obj);
+    const std::string& result = instance->getBenchmark();
+    jstring jbuf = env->NewStringUTF(result.c_str());
+    return jbuf;
 }

@@ -37,6 +37,17 @@
         app:layout_constraintTop_toBottomOf="@id/tv_result"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
+    <TextView
+        android:id="@+id/tv_benchmark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_save"
+        android:text="2ms"/>
+
     <View
         android:id="@+id/box_prediction"
         android:layout_width="0dp"

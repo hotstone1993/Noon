@@ -15,6 +15,7 @@ class NativeLib {
     external fun setup(width: Int, height: Int, pixelStride: Int): Int
     external fun inference(input: ByteArray, output: FloatArray): Int
     external fun saveImage()
+    external fun getBenchmark(): String
 
     companion object {
         // Used to load the 'core' library on application startup.

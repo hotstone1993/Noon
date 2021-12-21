@@ -56,6 +56,9 @@ class MainActivity: AppCompatActivity() {
                 layoutParams = currentLayoutParams
             }
         }
+        vm.tvBenchmark.observe(this, Observer {
+            activityCameraBinding.tvBenchmark.text = it
+        })
         activityCameraBinding.btnSave.setOnClickListener {
             vm.saveButtonClickEvent()
         }

@@ -5,6 +5,7 @@
 #include "include/Processor.h"
 #include "include/SimpleAverageFilter.h"
 #include "lodepng.h"
+#include <chrono>
 
 #define INPUT_INDEX 0
 
@@ -84,6 +85,8 @@ int Processor::setup(int width, int height, int pixelStride) {
 }
 
 int Processor::inference(uint8_t* inputBuffer, float* output) {
+    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+
     filter->process(inputBuffer, processedBuffer);
 
     if(saveImageFlag) {
@@ -129,6 +132,8 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
             output[idx++] = interpreter->typed_tensor<float>(outputIndices[i])[0];
         }
     }
+    std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+    benchmarkResult = std::to_string(duration.count()) + "ms";
 
     return SUCCESS;
 }
@@ -136,6 +141,10 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
 
 void Processor::saveImage() {
     saveImageFlag = true;
+}
+
+const std::string& Processor::getBenchmark() {
+    return benchmarkResult;
 }
 
 ////////////////////////////////////////////////////////////////////////////
