@@ -9,6 +9,7 @@ import com.example.core.NativeLib
 
 class MainViewModel: ViewModel() {
     private val MODEL_PATH = "coco_ssd_mobilenet_v1_1.0_quant.tflite"
+    private val ACCURACY_THRESHOLD = 0.5
 
     private var pauseAnalysis = false
     private val nativeLib = NativeLib()
@@ -46,8 +47,13 @@ class MainViewModel: ViewModel() {
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
         nativeLib.inference(input, output)
-        tvString.postValue("${labels[output[4].toInt() + 1]}: ${output[5]}")
-        rect.postValue(RectF(output[1], output[0], output[3], output[2]))
+        if (ACCURACY_THRESHOLD <= output[5]) {
+            tvString.postValue("${labels[output[4].toInt() + 1]}: ${output[5]}")
+            rect.postValue(RectF(output[1], output[0], output[3], output[2]))
+        } else {
+            tvString.postValue("")
+            rect.postValue(RectF(0.0f, 0.0f, 0.0f, 0.0f))
+        }
 
         // Compute the FPS of the entire pipeline\
         val frameCount = 10
