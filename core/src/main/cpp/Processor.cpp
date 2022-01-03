@@ -103,7 +103,6 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
                     pngBuffer[pos1 + 1] = processedBuffer[pos2 + 1];
                     pngBuffer[pos1 + 2] = processedBuffer[pos2 + 2];
                     pngBuffer[pos1 + 3] = 255;
-
                 }
             }
         }
