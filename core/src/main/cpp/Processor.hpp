@@ -14,19 +14,22 @@
 #define IMAGE_HEIGHT_INDEX 2
 #define IMAGE_PIXEL_STRIDE_INDEX 3
 
-
-Processor::Processor():
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+Processor<INTPUT_TYPE, OUTPUT_TYPE>::Processor():
     processedBuffer(nullptr),
     filter(nullptr),
     saveImageFlag(false),
     modelBuffer(nullptr),
     delegate(nullptr) {
 }
-Processor::~Processor() {
+
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+Processor<INTPUT_TYPE, OUTPUT_TYPE>::~Processor() {
     destroy();
 }
 
-int Processor::loadModel(const char* file, size_t fileSize) {
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const char* file, size_t fileSize) {
     modelBuffer = new char[fileSize];
     memcpy(modelBuffer, file, sizeof(char) * fileSize);
 
@@ -47,8 +50,8 @@ int Processor::loadModel(const char* file, size_t fileSize) {
     return SUCCESS;
 }
 
-
-int Processor::setup(int width, int height, int pixelStride) {
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(int width, int height, int pixelStride) {
     if(width == 0 || height == 0 || pixelStride == 0) {
         return FAIL;
     }
@@ -84,7 +87,8 @@ int Processor::setup(int width, int height, int pixelStride) {
     return SUCCESS;
 }
 
-int Processor::inference(uint8_t* inputBuffer, float* output) {
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output) {
     std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
     filter->process(inputBuffer, processedBuffer);
@@ -138,17 +142,20 @@ int Processor::inference(uint8_t* inputBuffer, float* output) {
 }
 
 
-void Processor::saveImage() {
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+void Processor<INTPUT_TYPE, OUTPUT_TYPE>::saveImage() {
     saveImageFlag = true;
 }
 
-const std::string& Processor::getBenchmark() {
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+const std::string& Processor<INTPUT_TYPE, OUTPUT_TYPE>::getBenchmark() {
     return benchmarkResult;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-int Processor::destroy() {
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::destroy() {
     DELETE_ARRAY(processedBuffer)
     DELETE_ARRAY(modelBuffer)
     DELETE(filter)

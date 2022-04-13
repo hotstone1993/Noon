@@ -6,11 +6,11 @@
 
 const char* const INSTANCE = "nativeInstance";
 
-Processor* getInstance(JNIEnv* env, const jobject& obj) {
+Processor<uint8_t, float>* getInstance(JNIEnv* env, const jobject& obj) {
     jclass cls = env->GetObjectClass(obj);
     jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
     jlong instancePointer = env->GetLongField(obj, id);
-    return reinterpret_cast<Processor*>(instancePointer);
+    return reinterpret_cast<Processor<uint8_t, float>*>(instancePointer);
 }
 
 extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
@@ -18,7 +18,7 @@ extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
         jobject obj /* this */) {
     int result = SUCCESS;
 
-    Processor* newInstance = new Processor();
+    Processor<uint8_t, float>* newInstance = new Processor<uint8_t, float>();
 
     jclass cls = env->GetObjectClass(obj);
     jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
@@ -49,7 +49,7 @@ Java_com_example_core_NativeLib_loadModel(
     if(AAsset_read(asset, buffer, fileSize) < 0)
        return FAIL;
 
-    Processor* instance =  getInstance(env, obj);
+    Processor<uint8_t, float>* instance =  getInstance(env, obj);
     int result = instance->loadModel(buffer, fileSize);
 
     AAsset_close(asset);
@@ -74,7 +74,7 @@ extern "C" JNIEXPORT jint JNICALL
                 jfloatArray output) {
     int result = SUCCESS;
 
-    Processor* instance = getInstance(env, obj);
+    Processor<uint8_t, float>* instance = getInstance(env, obj);
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
     jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
 
@@ -90,14 +90,14 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_example_core_NativeLib_saveImage(
         JNIEnv *env,
         jobject obj) {
-    Processor* instance = getInstance(env, obj);
+    Processor<uint8_t, float>* instance = getInstance(env, obj);
     instance->saveImage();
 }
 
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_example_core_NativeLib_getBenchmark(JNIEnv *env, jobject obj) {
-    Processor* instance = getInstance(env, obj);
+    Processor<uint8_t, float>* instance = getInstance(env, obj);
     const std::string& result = instance->getBenchmark();
     jstring jbuf = env->NewStringUTF(result.c_str());
     return jbuf;

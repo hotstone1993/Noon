@@ -14,13 +14,14 @@
 #include "tensorflow/lite/delegates/gpu/delegate.h"
 #include "ImageFilter.h"
 
+template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 class Processor {
 public:
     Processor();
     virtual ~Processor();
 
     int loadModel(const char* file, size_t fileSize);
-    int inference(uint8_t* inputBuffer, float* output);
+    int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output);
     int setup(int width, int height, int pixelStride);
     void saveImage();
     const std::string& getBenchmark();
@@ -34,9 +35,9 @@ private:
 
     char* modelBuffer;
     bool saveImageFlag;
-    uint8_t* processedBuffer;
+    INTPUT_TYPE* processedBuffer;
     ImageFilter<uint8_t>* filter;
     std::string benchmarkResult;
 };
-
+#include "../Processor.hpp"
 #endif //NOON_PROCESSOR_H
