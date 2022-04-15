@@ -13,7 +13,7 @@ Processor<uint8_t, float>* getInstance(JNIEnv* env, const jobject& obj) {
     return reinterpret_cast<Processor<uint8_t, float>*>(instancePointer);
 }
 
-extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
+extern "C" JNIEXPORT jint JNICALL Java_com_newstone_noon_Noon_create(
         JNIEnv *env,
         jobject obj /* this */) {
     int result = SUCCESS;
@@ -28,7 +28,7 @@ extern "C" JNIEXPORT jint JNICALL Java_com_example_core_NativeLib_create(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_example_core_NativeLib_loadModel(
+Java_com_newstone_noon_Noon_loadModel(
         JNIEnv *env,
         jobject obj,
         jobject assetManager, jstring modelPath) {
@@ -59,7 +59,7 @@ Java_com_example_core_NativeLib_loadModel(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_example_core_NativeLib_setup(
+Java_com_newstone_noon_Noon_setup(
         JNIEnv *env,
         jobject obj,
         jint width, jint height, jint pixelStride) {
@@ -67,7 +67,7 @@ Java_com_example_core_NativeLib_setup(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-        Java_com_example_core_NativeLib_inference(
+        Java_com_newstone_noon_Noon_inference(
                 JNIEnv *env,
                 jobject obj,
                 jbyteArray input,
@@ -87,7 +87,7 @@ extern "C" JNIEXPORT jint JNICALL
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_example_core_NativeLib_saveImage(
+Java_com_newstone_noon_Noon_saveImage(
         JNIEnv *env,
         jobject obj) {
     Processor<uint8_t, float>* instance = getInstance(env, obj);
@@ -96,7 +96,7 @@ Java_com_example_core_NativeLib_saveImage(
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_com_example_core_NativeLib_getBenchmark(JNIEnv *env, jobject obj) {
+Java_com_newstone_noon_Noon_getBenchmark(JNIEnv *env, jobject obj) {
     Processor<uint8_t, float>* instance = getInstance(env, obj);
     const std::string& result = instance->getBenchmark();
     jstring jbuf = env->NewStringUTF(result.c_str());

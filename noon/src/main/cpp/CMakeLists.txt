@@ -17,7 +17,7 @@ project("core")
 set( THIRDPARTY_PATH ../../../../thirdparty )
 
 set( SOURCE_PATH_LIST
-        core.cpp
+        noon.cpp
         Processor.hpp
         ${THIRDPARTY_PATH}/lodepng/lodepng.cpp
         ${THIRDPARTY_PATH}/lodepng/lodepng_fuzzer.cpp

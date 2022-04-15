@@ -1,13 +1,8 @@
-package com.example.core
+package com.newstone.noon
 
 import android.content.res.AssetManager
 
-class NativeLib {
-
-    /**
-     * A native method that is implemented by the 'core' native library,
-     * which is packaged with this application.
-     */
+class Noon {
     private var nativeInstance: Long = 0
 
     external fun create(): Int
@@ -18,9 +13,8 @@ class NativeLib {
     external fun getBenchmark(): String
 
     companion object {
-        // Used to load the 'core' library on application startup.
         init {
-            System.loadLibrary("core")
+            System.loadLibrary("noon")
         }
     }
 }

@@ -7,6 +7,6 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Noon"
-include ':core'
+include ':noon'
 include ':nativelib'
 include ':app'

@@ -62,5 +62,5 @@ dependencies {
 
     implementation 'org.tensorflow:tensorflow-lite-support:0.0.0-nightly-SNAPSHOT'
 
-    implementation project(":core")
+    implementation project(':noon')
 }

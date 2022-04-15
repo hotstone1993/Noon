@@ -5,14 +5,14 @@ import android.graphics.RectF
 import androidx.camera.core.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.core.NativeLib
+import com.newstone.noon.Noon
 
 class MainViewModel: ViewModel() {
     private val MODEL_PATH = "coco_ssd_mobilenet_v1_1.0_quant.tflite"
     private val ACCURACY_THRESHOLD = 0.5
 
     private var pauseAnalysis = false
-    private val nativeLib = NativeLib()
+    private val nativeLib = Noon()
 
     private lateinit var input: ByteArray
     private lateinit var output: FloatArray
