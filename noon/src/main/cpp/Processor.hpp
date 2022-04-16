@@ -5,6 +5,7 @@
 #include "include/Processor.h"
 #include "include/SimpleAverageFilter.h"
 #include "lodepng.h"
+#include <android/log.h>
 #include <chrono>
 
 #define INPUT_INDEX 0
@@ -14,11 +15,18 @@
 #define IMAGE_HEIGHT_INDEX 2
 #define IMAGE_PIXEL_STRIDE_INDEX 3
 
+const char* const TAG = "Noon";
+
+#define TFLITE_MINIMAL_CHECK(x)                              \
+if (!(x)) { \
+    __android_log_print(ANDROID_LOG_ERROR, TAG, "Error at %s:%d\n", __FILE__, __LINE__);                                 \
+    return PROCESSOR_FAIL; \
+}
+
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 Processor<INTPUT_TYPE, OUTPUT_TYPE>::Processor():
     processedBuffer(nullptr),
     filter(nullptr),
-    saveImageFlag(false),
     modelBuffer(nullptr),
     delegate(nullptr) {
 }
@@ -47,13 +55,13 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const char* file, size_t file
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
 
-    return SUCCESS;
+    return PROCESSOR_SUCCESS;
 }
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(int width, int height, int pixelStride) {
     if(width == 0 || height == 0 || pixelStride == 0) {
-        return FAIL;
+        return NOT_INITIALIZED;
     }
 
     ImageInfo inputInfo{
@@ -64,7 +72,7 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(int width, int height, int pixelS
 
     TfLiteTensor* tensor = interpreter->input_tensor(INPUT_INDEX);
     if(tensor->dims->size <= IMAGE_PIXEL_STRIDE_INDEX) {
-        return FAIL;
+        return PROCESSOR_FAIL;
     }
 
     ImageInfo targetInfo{
@@ -77,46 +85,19 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(int width, int height, int pixelS
         processedBuffer = new uint8_t[targetInfo.width * targetInfo.height * targetInfo.pixelStride];
         memset(processedBuffer, 0, sizeof(int8_t) * targetInfo.width * targetInfo.height * targetInfo.pixelStride);
     } else {
-        return FAIL;
+        return PROCESSOR_FAIL;
     }
     if(filter == nullptr) {
         filter = new SimpleAverageFilter<uint8_t>();
     }
     filter->setup(inputInfo, targetInfo);
 
-    return SUCCESS;
+    return PROCESSOR_SUCCESS;
 }
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output) {
-    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-
     filter->process(inputBuffer, processedBuffer);
-
-    if(saveImageFlag) {
-        std::vector<std::uint8_t> pngBuffer(filter->getTargetInfo().height * filter->getTargetInfo().width * 4);
-
-        for(unsigned int h = 0; h < filter->getTargetInfo().height; ++h)
-        {
-            for(unsigned int w = 0; w < filter->getTargetInfo().width; ++w)
-            {
-                for(unsigned int ps = 0; ps < filter->getTargetInfo().pixelStride; ++ps) {
-                    unsigned int pos1 = (filter->getTargetInfo().width * 4) * h + 4 * w;
-                    unsigned int pos2 = (filter->getTargetInfo().width * filter->getTargetInfo().pixelStride) * h + filter->getTargetInfo().pixelStride * w;
-                    pngBuffer[pos1] = processedBuffer[pos2];
-                    pngBuffer[pos1 + 1] = processedBuffer[pos2 + 1];
-                    pngBuffer[pos1 + 2] = processedBuffer[pos2 + 2];
-                    pngBuffer[pos1 + 3] = 255;
-                }
-            }
-        }
-
-        std::vector<std::uint8_t> imageBuffer;
-        lodepng::encode(imageBuffer, pngBuffer, filter->getTargetInfo().width, filter->getTargetInfo().height);
-        lodepng::save_file(imageBuffer, "/sdcard/Test/SomeImage.png");
-
-        saveImageFlag = false;
-    }
 
     size_t size = filter->getTargetInfo().width * filter->getTargetInfo().height * filter->getTargetInfo().pixelStride;
     memcpy(interpreter->typed_input_tensor<uint8_t>(0), processedBuffer, sizeof(uint8_t) * size);
@@ -135,23 +116,9 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUT
             output[idx++] = interpreter->typed_tensor<float>(outputIndices[i])[0];
         }
     }
-    std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-    benchmarkResult = std::to_string(duration.count()) + "ms";
 
-    return SUCCESS;
+    return PROCESSOR_SUCCESS;
 }
-
-
-template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
-void Processor<INTPUT_TYPE, OUTPUT_TYPE>::saveImage() {
-    saveImageFlag = true;
-}
-
-template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
-const std::string& Processor<INTPUT_TYPE, OUTPUT_TYPE>::getBenchmark() {
-    return benchmarkResult;
-}
-
 ////////////////////////////////////////////////////////////////////////////
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
@@ -161,5 +128,5 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::destroy() {
     DELETE(filter)
     TfLiteGpuDelegateV2Delete(delegate);
 
-    return SUCCESS;
+    return PROCESSOR_SUCCESS;
 }

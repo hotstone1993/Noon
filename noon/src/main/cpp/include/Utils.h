@@ -5,11 +5,6 @@
 #ifndef NOON_UTILS_H
 #define NOON_UTILS_H
 
-enum {
-    SUCCESS = 0,
-    FAIL = -1
-};
-
 struct ImageInfo {
     int width;
     int height;
@@ -35,10 +30,10 @@ struct Rectrangle {
     }                   \
 }
 
-#define TFLITE_MINIMAL_CHECK(x)                              \
-if (!(x)) {                                                \
-    fprintf(stderr, "Error at %s:%d\n", __FILE__, __LINE__); \
-    return FAIL; \
+#define ALLOC_BUFFER(BUFFER, TYPE, SIZE) { \
+    if (BUFFER == nullptr) {   \
+        BUFFER = new TYPE[SIZE];\
+    }    \
 }
 
 #endif //NOON_UTILS_H

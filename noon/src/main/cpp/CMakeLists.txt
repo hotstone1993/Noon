@@ -18,7 +18,7 @@ set( THIRDPARTY_PATH ../../../../thirdparty )
 
 set( SOURCE_PATH_LIST
         native.cpp
-        Noon.cpp
+        Noon.hpp
         Processor.hpp
         ${THIRDPARTY_PATH}/lodepng/lodepng.cpp
         ${THIRDPARTY_PATH}/lodepng/lodepng_fuzzer.cpp
@@ -66,4 +66,4 @@ target_link_libraries( # Specifies the target library.
                         android
                        # Links the target library to the log library
                        # included in the NDK.
-                        ${log-lib} )
+                        log )

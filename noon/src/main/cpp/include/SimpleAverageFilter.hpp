@@ -43,7 +43,7 @@ int SimpleAverageFilter<T>::setup(ImageInfo inputInfo, ImageInfo targetInfo) {
     this->inputInfo = inputInfo;
     this->targetInfo = targetInfo;
     calculateKernelAndStep();
-    return SUCCESS;
+    return 0;
 }
 
 template<typename T>
@@ -59,7 +59,7 @@ int SimpleAverageFilter<T>::process(T* input, T* output) {
     f3.get();
     f4.get();
 
-    return SUCCESS;
+    return 0;
 }
 
 template<typename T>
