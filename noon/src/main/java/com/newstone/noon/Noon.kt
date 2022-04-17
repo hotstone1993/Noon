@@ -7,7 +7,7 @@ class Noon {
 
     external fun create(): Int
     external fun loadModel(assetManager: AssetManager, modelPath: String): Int
-    external fun setup(width: Int, height: Int, pixelStride: Int): Int
+    external fun setup(info: InferenceInfo): Int
     external fun inference(input: ByteArray, output: FloatArray): Int
     external fun saveImage()
     external fun getBenchmark(): String

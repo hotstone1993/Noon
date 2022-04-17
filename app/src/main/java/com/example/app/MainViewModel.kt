@@ -5,6 +5,7 @@ import android.graphics.RectF
 import androidx.camera.core.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.newstone.noon.InferenceInfo
 import com.newstone.noon.Noon
 
 class MainViewModel: ViewModel() {
@@ -43,7 +44,16 @@ class MainViewModel: ViewModel() {
         if(!::input.isInitialized) {
             input = ByteArray(image.width * image.height * pixelStride)
             output = FloatArray(10)
-            nativeLib.setup(width = image.width, height = image.height, pixelStride = pixelStride)
+            val inferenceInfo = InferenceInfo(
+                type = InferenceInfo.InferenceType.IMAGE.ordinal,
+                input = InferenceInfo.InputInfo(
+                    shape = listOf(image.width, image.height, pixelStride)
+                ),
+                output = InferenceInfo.OutputInfo(
+                    shape = listOf(10)
+                )
+            )
+            nativeLib.setup(inferenceInfo)
         }
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)

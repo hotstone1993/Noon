@@ -79,13 +79,44 @@ extern "C" JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_setup(
         JNIEnv *env,
         jobject obj,
-        jint width, jint height, jint pixelStride) {
+        jobject inferenceInfo) {
     InferenceInfo info;
-    info.type = static_cast<int>(InferenceType::IMAGE);
-    info.input.shape.push_back(width);
-    info.input.shape.push_back(height);
-    info.input.shape.push_back(pixelStride);
-    info.output.shape.push_back(10);
+    jclass cls = env->GetObjectClass(inferenceInfo);
+
+    jfieldID typeId = env->GetFieldID(cls, "type", "I");
+    info.type = env->GetIntField(inferenceInfo, typeId);
+
+    jfieldID inputInfoId = env->GetFieldID(cls, "input", "Lcom/newstone/noon/InferenceInfo$InputInfo;");
+    jfieldID outputInfoId = env->GetFieldID(cls, "output", "Lcom/newstone/noon/InferenceInfo$OutputInfo;");
+    jobject input = env->GetObjectField(inferenceInfo, inputInfoId);
+    jobject output = env->GetObjectField(inferenceInfo, outputInfoId);
+    jclass listCls = env->FindClass( "java/util/List" );
+    jmethodID getMethodId = env->GetMethodID( listCls, "get", "(I)Ljava/lang/Object;" );
+    jmethodID sizeMethodId = env->GetMethodID( listCls, "size", "()I" );
+    jclass integerCls = env->FindClass("java/lang/Integer");
+    jmethodID getIntMethodId = env->GetMethodID(integerCls, "intValue", "()I");
+
+    jclass inputCls = env->GetObjectClass(input);
+    jfieldID inputShapeFieldId = env->GetFieldID(inputCls, "shape", "Ljava/util/List;");
+    jobject inputShapeObject = env->GetObjectField(input, inputShapeFieldId);
+    int inputShapeSize = (int)env->CallIntMethod( inputShapeObject, sizeMethodId );
+    for(int i = 0; i < inputShapeSize; ++i) {
+        jobject itemObj = env->CallObjectMethod(inputShapeObject, getMethodId, i);
+        int item = env->CallIntMethod(itemObj, getIntMethodId);
+        info.input.shape.push_back(item);
+        env->DeleteGlobalRef(itemObj);
+    }
+
+    jclass outputCls = env->GetObjectClass(output);
+    jfieldID outputShapeFieldId = env->GetFieldID(outputCls, "shape", "Ljava/util/List;");
+    jobject outputShapeObject = env->GetObjectField(output, outputShapeFieldId);
+    int outputShapeSize = (int)env->CallIntMethod( outputShapeObject, sizeMethodId );
+    for(int i = 0; i < outputShapeSize; ++i) {
+        jobject itemObj = env->CallObjectMethod(outputShapeObject, getMethodId, i);
+        int item = env->CallIntMethod(itemObj, getIntMethodId);
+        info.output.shape.push_back(item);
+        env->DeleteGlobalRef(itemObj);
+    }
 
     return printResult(getInstance(env, obj)->setup(info));
 }
