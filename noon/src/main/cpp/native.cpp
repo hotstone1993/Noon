@@ -104,7 +104,7 @@ Java_com_newstone_noon_Noon_setup(
         jobject itemObj = env->CallObjectMethod(inputShapeObject, getMethodId, i);
         int item = env->CallIntMethod(itemObj, getIntMethodId);
         info.input.shape.push_back(item);
-        env->DeleteGlobalRef(itemObj);
+        env->DeleteLocalRef(itemObj);
     }
 
     jclass outputCls = env->GetObjectClass(output);
@@ -115,7 +115,7 @@ Java_com_newstone_noon_Noon_setup(
         jobject itemObj = env->CallObjectMethod(outputShapeObject, getMethodId, i);
         int item = env->CallIntMethod(itemObj, getIntMethodId);
         info.output.shape.push_back(item);
-        env->DeleteGlobalRef(itemObj);
+        env->DeleteLocalRef(itemObj);
     }
 
     return printResult(getInstance(env, obj)->setup(info));
