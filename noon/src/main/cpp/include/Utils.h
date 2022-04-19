@@ -5,11 +5,6 @@
 #ifndef NOON_UTILS_H
 #define NOON_UTILS_H
 
-struct ImageInfo {
-    int width;
-    int height;
-    int pixelStride;
-};
 
 struct Rectrangle {
     int width;

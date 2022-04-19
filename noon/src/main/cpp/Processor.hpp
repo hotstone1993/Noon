@@ -59,15 +59,17 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const char* file, size_t file
 }
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
-int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(int width, int height, int pixelStride) {
-    if(width == 0 || height == 0 || pixelStride == 0) {
-        return NOT_INITIALIZED;
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
+    for (const int& dim : shape) {
+        if (dim == 0) {
+            return NOT_INITIALIZED;
+        }
     }
 
     ImageInfo inputInfo{
-        width,
-        height,
-        pixelStride
+            shape[0],
+            shape[1],
+            shape[2]
     };
 
     TfLiteTensor* tensor = interpreter->input_tensor(INPUT_INDEX);

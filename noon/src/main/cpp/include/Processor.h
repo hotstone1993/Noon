@@ -28,7 +28,7 @@ public:
 
     int loadModel(const char* file, size_t fileSize);
     int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output);
-    int setup(int width, int height, int pixelStride);
+    int setup(const std::vector<int>& shape);
 private:
     int destroy();
     std::unique_ptr<tflite::FlatBufferModel> model;

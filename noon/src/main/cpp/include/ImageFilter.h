@@ -7,6 +7,12 @@
 
 #include "Utils.h"
 
+struct ImageInfo {
+    int width;
+    int height;
+    int pixelStride;
+};
+
 template <typename T>
 class ImageFilter {
 public:

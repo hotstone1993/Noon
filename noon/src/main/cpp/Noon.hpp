@@ -27,7 +27,7 @@ int Noon<INPUT_TYPE, OUTPUT_TYPE>::setup(const InferenceInfo& info) {
     } else {
         return UNKNOWN_INFERENCE_TYPE;
     }
-    result = processor->setup(info.input.shape[0], info.input.shape[1], info.input.shape[2]);
+    result = processor->setup(info.input.shape);
     if (result != SUCCESS) {
         return result;
     }
