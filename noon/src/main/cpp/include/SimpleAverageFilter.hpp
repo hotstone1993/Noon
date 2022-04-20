@@ -4,27 +4,34 @@
 #include <future>
 
 template<typename T>
-void subProcess(T* input, T* output, unsigned int startX, unsigned int startY, unsigned int endX, unsigned int endY, ImageInfo inputInfo, ImageInfo targetInfo) {
+void subProcess(T* input, T* output, unsigned int startX, unsigned int startY, unsigned int endX, unsigned int endY, BaseInfo inputInfo, BaseInfo targetInfo) {
     T A, B, C, D, pixel;
     int currX, currY;
-    float xRatio = ((float)(inputInfo.width - 1)) / targetInfo.width;
-    float yRatio = ((float)(inputInfo.height - 1)) / targetInfo.height;
+    int inputWidth = inputInfo.shape[INPUT_TYPE][WIDTH];
+    int inputHeight = inputInfo.shape[INPUT_TYPE][HEIGHT];
+    int inputPixelStride = inputInfo.shape[INPUT_TYPE][PIXER_STRID];
+    int targetWidth = targetInfo.shape[INPUT_TYPE][WIDTH];
+    int targetHeight = targetInfo.shape[INPUT_TYPE][HEIGHT];
+    int targetPixelStride = targetInfo.shape[INPUT_TYPE][PIXER_STRID];
+
+    float xRatio = ((float)(inputWidth - 1)) / targetWidth;
+    float yRatio = ((float)(inputHeight - 1)) / targetHeight;
     float xDiff, yDiff;
 
     for(unsigned int x = startX; x < endX; ++x) {
         for(unsigned int y = startY; y < endY; ++y) {
-            for(unsigned int ps = 0; ps < targetInfo.pixelStride; ++ps) {
+            for(unsigned int ps = 0; ps < targetPixelStride; ++ps) {
                 currX = static_cast<int>(xRatio * x);
                 currY = static_cast<int>(yRatio * y);
                 xDiff = (xRatio * x) - currX;
                 yDiff = (yRatio * y) - currY;
 
-                A = input[inputInfo.width * inputInfo.pixelStride * currY + inputInfo.pixelStride * currX + ps] & 0xff ;
-                B = input[inputInfo.width * inputInfo.pixelStride * currY + inputInfo.pixelStride * (currX + 1) + ps] & 0xff ;
-                C = input[inputInfo.width * inputInfo.pixelStride * (currY + 1) + inputInfo.pixelStride * currX + ps] & 0xff ;
-                D = input[inputInfo.width * inputInfo.pixelStride * (currY + 1) + inputInfo.pixelStride * (currX + 1) + ps] & 0xff ;
+                A = input[inputWidth * inputPixelStride * currY + inputPixelStride * currX + ps] & 0xff ;
+                B = input[inputWidth * inputPixelStride * currY + inputPixelStride * (currX + 1) + ps] & 0xff ;
+                C = input[inputWidth * inputPixelStride * (currY + 1) + inputPixelStride * currX + ps] & 0xff ;
+                D = input[inputWidth * inputPixelStride * (currY + 1) + inputPixelStride * (currX + 1) + ps] & 0xff ;
                 pixel = static_cast<T>(A * (1 - xDiff) * (1 - yDiff) + B * (xDiff) * (1 - yDiff) + C * (yDiff) * (1 - xDiff) + D * (xDiff * yDiff));
-                output[targetInfo.width * targetInfo.pixelStride * x + targetInfo.pixelStride * (targetInfo.height - y - 1) + ps] = pixel;
+                output[targetWidth * targetPixelStride * x + targetPixelStride * (targetHeight - y - 1) + ps] = pixel;
             }
         }
     }
@@ -39,7 +46,7 @@ SimpleAverageFilter<T>::~SimpleAverageFilter() {
 }
 
 template<typename T>
-int SimpleAverageFilter<T>::setup(ImageInfo inputInfo, ImageInfo targetInfo) {
+int SimpleAverageFilter<T>::setup(const BaseInfo& inputInfo, const BaseInfo& targetInfo) {
     this->inputInfo = inputInfo;
     this->targetInfo = targetInfo;
     calculateKernelAndStep();
@@ -49,10 +56,10 @@ int SimpleAverageFilter<T>::setup(ImageInfo inputInfo, ImageInfo targetInfo) {
 template<typename T>
 int SimpleAverageFilter<T>::process(T* input, T* output) {
     //subProcess<T>(input, output, 0, 0, this->targetInfo.width, this->targetInfo.height, this->inputInfo, this->targetInfo);
-    auto f1 = std::async(std::launch::async, subProcess<T>, input, output, 0, 0, this->targetInfo.width / 2, this->targetInfo.height / 2, this->inputInfo, this->targetInfo);
-    auto f2 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.width / 2, 0, this->targetInfo.width, this->targetInfo.height / 2, this->inputInfo, this->targetInfo);
-    auto f3 = std::async(std::launch::async, subProcess<T>, input, output, 0, this->targetInfo.height / 2, this->targetInfo.width / 2, this->targetInfo.height, this->inputInfo, this->targetInfo);
-    auto f4 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.width / 2, this->targetInfo.height / 2, this->targetInfo.width, this->targetInfo.height, this->inputInfo, this->targetInfo);
+    auto f1 = std::async(std::launch::async, subProcess<T>, input, output, 0, 0, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->inputInfo, this->targetInfo);
+    auto f2 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, 0, this->targetInfo.shape[INPUT_TYPE][WIDTH], this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->inputInfo, this->targetInfo);
+    auto f3 = std::async(std::launch::async, subProcess<T>, input, output, 0, this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, this->targetInfo.shape[INPUT_TYPE][HEIGHT], this->inputInfo, this->targetInfo);
+    auto f4 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->targetInfo.shape[INPUT_TYPE][WIDTH], this->targetInfo.shape[INPUT_TYPE][HEIGHT], this->inputInfo, this->targetInfo);
 
     f1.get();
     f2.get();

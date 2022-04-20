@@ -6,12 +6,12 @@
 #define NOON_IMAGEFILTER_H
 
 #include "Utils.h"
+#include "BaseFilter.h"
 
-struct ImageInfo {
-    int width;
-    int height;
-    int pixelStride;
-};
+const static int INPUT_TYPE = 0;
+const static int WIDTH = 0;
+const static int HEIGHT = 1;
+const static int PIXER_STRID = 2;
 
 template <typename T>
 class ImageFilter {
@@ -19,31 +19,32 @@ public:
     ImageFilter() {}
     virtual ~ImageFilter() {}
 
-    virtual int setup(ImageInfo inputInfo, ImageInfo targetInfo) = 0;
+    virtual int setup(const BaseInfo& inputInfo, const BaseInfo& targetInfo) = 0;
     virtual int process(T* input, T* output) = 0;
 
-    const ImageInfo& getTargetInfo() const {
+    const BaseInfo& getTargetInfo() const {
         return targetInfo;
     }
-    const ImageInfo& getInputInfo() const {
+    const BaseInfo& getInputInfo() const {
         return inputInfo;
     }
 protected:
     inline T getInputValue(T* buf, int w, int h, int ps) {
-        if(buf == nullptr || inputInfo.width == 0 || inputInfo.height == 0 || inputInfo.pixelStride == 0) {
+
+        if(buf == nullptr || inputInfo.shape[INPUT_TYPE][WIDTH] == 0 || inputInfo.shape[INPUT_TYPE][HEIGHT] == 0 || inputInfo.shape[INPUT_TYPE][PIXER_STRID] == 0) {
             return 0;
         }
-        return buf[inputInfo.width * inputInfo.pixelStride * h + inputInfo.pixelStride * w + ps];
+        return buf[inputInfo.shape[INPUT_TYPE][WIDTH] * inputInfo.shape[INPUT_TYPE][PIXER_STRID] * h + inputInfo.shape[INPUT_TYPE][PIXER_STRID] * w + ps];
     }
     inline void setTargetValue(T* buf, int w, int h, int ps, T v) {
-        if(buf == nullptr || targetInfo.width == 0 || targetInfo.height == 0 || targetInfo.pixelStride == 0) {
+        if(buf == nullptr || inputInfo.shape[INPUT_TYPE][WIDTH] == 0 || inputInfo.shape[INPUT_TYPE][HEIGHT] == 0 || inputInfo.shape[INPUT_TYPE][PIXER_STRID] == 0) {
             return;
         }
-        buf[targetInfo.width * targetInfo.pixelStride * h + targetInfo.pixelStride * w + ps] = v;
+        buf[inputInfo.shape[INPUT_TYPE][WIDTH] * inputInfo.shape[INPUT_TYPE][PIXER_STRID] * h + inputInfo.shape[INPUT_TYPE][PIXER_STRID] * w + ps] = v;
     }
 
-    ImageInfo inputInfo;
-    ImageInfo targetInfo;
+    BaseInfo inputInfo;
+    BaseInfo targetInfo;
 };
 
 #endif //NOON_IMAGEFILTER_H

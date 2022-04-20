@@ -40,6 +40,9 @@ private:
     char* modelBuffer;
     INTPUT_TYPE* processedBuffer;
     ImageFilter<uint8_t>* filter;
+
+    BaseInfo* inputInfo;
+    BaseInfo* targetInfo;
 };
 #include "../Processor.hpp"
 #endif //NOON_PROCESSOR_H

@@ -13,7 +13,7 @@ public:
     SimpleAverageFilter();
     virtual ~SimpleAverageFilter();
 
-    virtual int setup(ImageInfo inputInfo, ImageInfo targetInfo) override;
+    virtual int setup(const BaseInfo& inputInfo, const BaseInfo& targetInfo) override;
     virtual int process(T* input, T* output) override;
 
 private:
