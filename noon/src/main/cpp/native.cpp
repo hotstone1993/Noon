@@ -138,7 +138,7 @@ extern "C" JNIEXPORT jint JNICALL
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
     env->ReleaseFloatArrayElements(output, outputBuffer, 0);
 
-    return printResult(result);
+    return result;
 }
 
 extern "C" JNIEXPORT void JNICALL

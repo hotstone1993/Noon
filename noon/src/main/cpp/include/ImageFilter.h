@@ -31,16 +31,16 @@ public:
 protected:
     inline T getInputValue(T* buf, int w, int h, int ps) {
 
-        if(buf == nullptr || inputInfo.shape[INPUT_TYPE][WIDTH] == 0 || inputInfo.shape[INPUT_TYPE][HEIGHT] == 0 || inputInfo.shape[INPUT_TYPE][PIXER_STRID] == 0) {
+        if(buf == nullptr || inputInfo.nodes[INPUT_TYPE].shape[WIDTH] == 0 || inputInfo.nodes[INPUT_TYPE].shape[HEIGHT] == 0 || inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID] == 0) {
             return 0;
         }
-        return buf[inputInfo.shape[INPUT_TYPE][WIDTH] * inputInfo.shape[INPUT_TYPE][PIXER_STRID] * h + inputInfo.shape[INPUT_TYPE][PIXER_STRID] * w + ps];
+        return buf[inputInfo.nodes[INPUT_TYPE].shape[WIDTH] * inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID] * h + inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID] * w + ps];
     }
     inline void setTargetValue(T* buf, int w, int h, int ps, T v) {
-        if(buf == nullptr || inputInfo.shape[INPUT_TYPE][WIDTH] == 0 || inputInfo.shape[INPUT_TYPE][HEIGHT] == 0 || inputInfo.shape[INPUT_TYPE][PIXER_STRID] == 0) {
+        if(buf == nullptr || inputInfo.nodes[INPUT_TYPE].shape[WIDTH] == 0 || inputInfo.nodes[INPUT_TYPE].shape[HEIGHT] == 0 || inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID] == 0) {
             return;
         }
-        buf[inputInfo.shape[INPUT_TYPE][WIDTH] * inputInfo.shape[INPUT_TYPE][PIXER_STRID] * h + inputInfo.shape[INPUT_TYPE][PIXER_STRID] * w + ps] = v;
+        buf[inputInfo.nodes[INPUT_TYPE].shape[WIDTH] * inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID] * h + inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID] * w + ps] = v;
     }
 
     BaseInfo inputInfo;

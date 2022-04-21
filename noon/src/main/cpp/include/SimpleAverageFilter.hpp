@@ -7,12 +7,12 @@ template<typename T>
 void subProcess(T* input, T* output, unsigned int startX, unsigned int startY, unsigned int endX, unsigned int endY, BaseInfo inputInfo, BaseInfo targetInfo) {
     T A, B, C, D, pixel;
     int currX, currY;
-    int inputWidth = inputInfo.shape[INPUT_TYPE][WIDTH];
-    int inputHeight = inputInfo.shape[INPUT_TYPE][HEIGHT];
-    int inputPixelStride = inputInfo.shape[INPUT_TYPE][PIXER_STRID];
-    int targetWidth = targetInfo.shape[INPUT_TYPE][WIDTH];
-    int targetHeight = targetInfo.shape[INPUT_TYPE][HEIGHT];
-    int targetPixelStride = targetInfo.shape[INPUT_TYPE][PIXER_STRID];
+    int inputWidth = inputInfo.nodes[INPUT_TYPE].shape[WIDTH];
+    int inputHeight = inputInfo.nodes[INPUT_TYPE].shape[HEIGHT];
+    int inputPixelStride = inputInfo.nodes[INPUT_TYPE].shape[PIXER_STRID];
+    int targetWidth = targetInfo.nodes[INPUT_TYPE].shape[WIDTH];
+    int targetHeight = targetInfo.nodes[INPUT_TYPE].shape[HEIGHT];
+    int targetPixelStride = targetInfo.nodes[INPUT_TYPE].shape[PIXER_STRID];
 
     float xRatio = ((float)(inputWidth - 1)) / targetWidth;
     float yRatio = ((float)(inputHeight - 1)) / targetHeight;
@@ -56,10 +56,10 @@ int SimpleAverageFilter<T>::setup(const BaseInfo& inputInfo, const BaseInfo& tar
 template<typename T>
 int SimpleAverageFilter<T>::process(T* input, T* output) {
     //subProcess<T>(input, output, 0, 0, this->targetInfo.width, this->targetInfo.height, this->inputInfo, this->targetInfo);
-    auto f1 = std::async(std::launch::async, subProcess<T>, input, output, 0, 0, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->inputInfo, this->targetInfo);
-    auto f2 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, 0, this->targetInfo.shape[INPUT_TYPE][WIDTH], this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->inputInfo, this->targetInfo);
-    auto f3 = std::async(std::launch::async, subProcess<T>, input, output, 0, this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, this->targetInfo.shape[INPUT_TYPE][HEIGHT], this->inputInfo, this->targetInfo);
-    auto f4 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.shape[INPUT_TYPE][WIDTH] / 2, this->targetInfo.shape[INPUT_TYPE][HEIGHT] / 2, this->targetInfo.shape[INPUT_TYPE][WIDTH], this->targetInfo.shape[INPUT_TYPE][HEIGHT], this->inputInfo, this->targetInfo);
+    auto f1 = std::async(std::launch::async, subProcess<T>, input, output, 0, 0, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH] / 2, this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT] / 2, this->inputInfo, this->targetInfo);
+    auto f2 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH] / 2, 0, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH], this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT] / 2, this->inputInfo, this->targetInfo);
+    auto f3 = std::async(std::launch::async, subProcess<T>, input, output, 0, this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT] / 2, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH] / 2, this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT], this->inputInfo, this->targetInfo);
+    auto f4 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH] / 2, this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT] / 2, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH], this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT], this->inputInfo, this->targetInfo);
 
     f1.get();
     f2.get();

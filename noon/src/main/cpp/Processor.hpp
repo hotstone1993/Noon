@@ -20,6 +20,7 @@ if (!(x)) { \
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 Processor<INTPUT_TYPE, OUTPUT_TYPE>::Processor():
     processedBuffer(nullptr),
+    resultBuffer(nullptr),
     filter(nullptr),
     modelBuffer(nullptr),
     delegate(nullptr),
@@ -63,28 +64,42 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
         return NOT_INITIALIZED;
     }
 
-    inputInfo->shape.push_back({});
+    inputInfo->nodes.push_back({});
     for (const int& dim: shape) {
-        inputInfo->shape[0].push_back(dim);
+        inputInfo->nodes[0].shape.push_back(dim);
     }
-
 
     for (int idx = 0; idx < interpreter->inputs().size(); ++idx) {
         TfLiteIntArray* dims = interpreter->tensor(interpreter->inputs()[idx])->dims;
-        targetInfo->shape.push_back({});
+        targetInfo->nodes.push_back({});
         for (int i = 0; i < dims->size; ++i) {
             if (dims->data[i] != 1) {
-                targetInfo->shape[idx].push_back(dims->data[i]);
+                targetInfo->nodes[idx].shape.push_back(dims->data[i]);
             }
         }
     }
 
     if(processedBuffer == nullptr) {
-        processedBuffer = new uint8_t[targetInfo->getSize(0)];
-        memset(processedBuffer, 0, sizeof(int8_t) * targetInfo->getSize(0));
+        processedBuffer = new uint8_t[targetInfo->nodes[0].getSize()];
+        memset(processedBuffer, 0, sizeof(int8_t) * targetInfo->nodes[0].getSize());
     } else {
         return PROCESSOR_FAIL;
     }
+    if (resultBuffer == nullptr) {
+        for (int inputIdx = 0; inputIdx < interpreter->outputs().size(); inputIdx++) {
+            TfLiteIntArray* dims = interpreter->tensor(interpreter->outputs()[inputIdx])->dims;
+            outputInfo.nodes.push_back({});
+            for (int idx = 0; idx < dims->size; ++idx) {
+                if (dims->data[idx] != 1) {
+                    outputInfo.nodes[inputIdx].shape.push_back(dims->data[idx]);
+                }
+            }
+        }
+        resultBuffer = new OUTPUT_TYPE[outputInfo.getTotalSize()];
+    } else {
+        return NOT_INITIALIZED;
+    }
+
     if(filter == nullptr) {
         filter = new SimpleAverageFilter<uint8_t>();
     }
@@ -97,23 +112,23 @@ template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output) {
     filter->process(inputBuffer, processedBuffer);
 
-    size_t size = targetInfo->getSize(0);
-    memcpy(interpreter->typed_input_tensor<uint8_t>(0), processedBuffer, sizeof(uint8_t) * size);
+    size_t size = targetInfo->nodes[0].getSize();
+    memcpy(interpreter->typed_input_tensor<INTPUT_TYPE>(0), processedBuffer, sizeof(INTPUT_TYPE) * size);
 
     // Run inference
     TFLITE_MINIMAL_CHECK(interpreter->Invoke() == kTfLiteOk);
 
+    size_t start = 0;
     std::vector<int> outputIndices = interpreter->outputs();
-    int idx = 0;
-    for(int i = 0; i < outputIndices.size(); ++i) {
-        if(i == 0) {
-            for(int j = 0; j < 4; ++j) {
-                output[idx++] = interpreter->typed_tensor<float>(outputIndices[i])[j];
-            }
-        } else {
-            output[idx++] = interpreter->typed_tensor<float>(outputIndices[i])[0];
-        }
+    for (int idx = 0; idx < outputIndices.size(); ++idx) {
+        memcpy(resultBuffer + start,
+               interpreter->typed_tensor<OUTPUT_TYPE>(outputIndices[idx]),
+               sizeof(OUTPUT_TYPE) * outputInfo.nodes[idx].getSize()
+        );
+        start += outputInfo.nodes[idx].getSize();
     }
+
+    memcpy(output, resultBuffer, sizeof(OUTPUT_TYPE) * 10);
 
     return PROCESSOR_SUCCESS;
 }
@@ -122,6 +137,7 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUT
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 int Processor<INTPUT_TYPE, OUTPUT_TYPE>::destroy() {
     DELETE_ARRAY(processedBuffer)
+    DELETE_ARRAY(resultBuffer)
     DELETE_ARRAY(modelBuffer)
     DELETE(filter)
     DELETE(inputInfo)

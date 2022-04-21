@@ -39,7 +39,9 @@ private:
 
     char* modelBuffer;
     INTPUT_TYPE* processedBuffer;
-    ImageFilter<uint8_t>* filter;
+    OUTPUT_TYPE* resultBuffer;
+    BaseInfo outputInfo;
+    ImageFilter<INTPUT_TYPE>* filter;
 
     BaseInfo* inputInfo;
     BaseInfo* targetInfo;
