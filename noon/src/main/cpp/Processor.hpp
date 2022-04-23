@@ -20,7 +20,6 @@ if (!(x)) { \
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 Processor<INTPUT_TYPE, OUTPUT_TYPE>::Processor():
     processedBuffer(nullptr),
-    resultBuffer(nullptr),
     filter(nullptr),
     modelBuffer(nullptr),
     delegate(nullptr),
@@ -34,7 +33,7 @@ Processor<INTPUT_TYPE, OUTPUT_TYPE>::~Processor() {
 }
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
-int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const char* file, size_t fileSize) {
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const int8_t* file, size_t fileSize) {
     modelBuffer = new char[fileSize];
     memcpy(modelBuffer, file, sizeof(char) * fileSize);
 
@@ -85,19 +84,14 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
     } else {
         return PROCESSOR_FAIL;
     }
-    if (resultBuffer == nullptr) {
-        for (int inputIdx = 0; inputIdx < interpreter->outputs().size(); inputIdx++) {
-            TfLiteIntArray* dims = interpreter->tensor(interpreter->outputs()[inputIdx])->dims;
-            outputInfo.nodes.push_back({});
-            for (int idx = 0; idx < dims->size; ++idx) {
-                if (dims->data[idx] != 1) {
-                    outputInfo.nodes[inputIdx].shape.push_back(dims->data[idx]);
-                }
+    for (int inputIdx = 0; inputIdx < interpreter->outputs().size(); inputIdx++) {
+        TfLiteIntArray* dims = interpreter->tensor(interpreter->outputs()[inputIdx])->dims;
+        outputInfo.nodes.push_back({});
+        for (int idx = 0; idx < dims->size; ++idx) {
+            if (dims->data[idx] != 1) {
+                outputInfo.nodes[inputIdx].shape.push_back(dims->data[idx]);
             }
         }
-        resultBuffer = new OUTPUT_TYPE[outputInfo.getTotalSize()];
-    } else {
-        return NOT_INITIALIZED;
     }
 
     if(filter == nullptr) {
@@ -121,14 +115,12 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUT
     size_t start = 0;
     std::vector<int> outputIndices = interpreter->outputs();
     for (int idx = 0; idx < outputIndices.size(); ++idx) {
-        memcpy(resultBuffer + start,
+        memcpy(output + start,
                interpreter->typed_tensor<OUTPUT_TYPE>(outputIndices[idx]),
                sizeof(OUTPUT_TYPE) * outputInfo.nodes[idx].getSize()
         );
         start += outputInfo.nodes[idx].getSize();
     }
-
-    memcpy(output, resultBuffer, sizeof(OUTPUT_TYPE) * 10);
 
     return PROCESSOR_SUCCESS;
 }
@@ -137,7 +129,6 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::inference(INTPUT_TYPE* inputBuffer, OUT
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 int Processor<INTPUT_TYPE, OUTPUT_TYPE>::destroy() {
     DELETE_ARRAY(processedBuffer)
-    DELETE_ARRAY(resultBuffer)
     DELETE_ARRAY(modelBuffer)
     DELETE(filter)
     DELETE(inputInfo)

@@ -12,7 +12,7 @@ public:
     virtual ~BasePostProcessor() {}
 
     virtual int setup() = 0;
-    virtual int inference(OUTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output) = 0;
+    virtual int inference(OUTPUT_TYPE** inputBuffer, OUTPUT_TYPE** output) = 0;
 private:
 };
 

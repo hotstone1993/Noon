@@ -26,9 +26,13 @@ public:
     Processor();
     virtual ~Processor();
 
-    int loadModel(const char* file, size_t fileSize);
+    int loadModel(const int8_t* file, size_t fileSize);
     int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output);
     int setup(const std::vector<int>& shape);
+
+    std::vector<Node>& getNodes() {
+        return outputInfo.nodes;
+    }
 private:
     int destroy();
     std::unique_ptr<tflite::FlatBufferModel> model;
@@ -39,7 +43,6 @@ private:
 
     char* modelBuffer;
     INTPUT_TYPE* processedBuffer;
-    OUTPUT_TYPE* resultBuffer;
     BaseInfo outputInfo;
     ImageFilter<INTPUT_TYPE>* filter;
 

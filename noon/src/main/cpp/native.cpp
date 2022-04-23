@@ -1,11 +1,10 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
 #include "include/Noon.h"
 
 const char* const INSTANCE = "nativeInstance";
+void** outputBuffer = nullptr;
 
 int printResult(int result) {
     switch (result) {
@@ -30,61 +29,34 @@ Noon<uint8_t, float>* getInstance(JNIEnv* env, const jobject& obj) {
     return reinterpret_cast<Noon<uint8_t, float>*>(instancePointer);
 }
 
-extern "C" JNIEXPORT jint JNICALL Java_com_newstone_noon_Noon_create(
-        JNIEnv *env,
-        jobject obj /* this */) {
-    int result = SUCCESS;
-
-    Noon<uint8_t, float>* newInstance = new Noon<uint8_t, float>();
-
-    jclass cls = env->GetObjectClass(obj);
-    jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
-    env->SetLongField(obj, id, reinterpret_cast<jlong>(newInstance));
-
-    return printResult(result);
-}
-
-extern "C" JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_loadModel(
-        JNIEnv *env,
-        jobject obj,
-        jobject assetManager, jstring modelPath) {
-
-    const char* model = env->GetStringUTFChars(modelPath, nullptr);
-
-    AAssetManager *manager = AAssetManager_fromJava(env, assetManager);
-    AAsset* asset = AAssetManager_open(manager, model, AASSET_MODE_UNKNOWN);
-    env->ReleaseStringUTFChars(modelPath, model);
-
-    if ( asset == nullptr )
-        return FAIL;
-    off_t fileSize = AAsset_getLength(asset);
-    if ( fileSize == 0 )
-        return FAIL;
-
-    char *buffer = new char[fileSize];
-    if(AAsset_read(asset, buffer, fileSize) < 0)
-       return FAIL;
-
-    Noon<uint8_t, float>* instance =  getInstance(env, obj);
-    int result = instance->loadModel(buffer, fileSize);
-
-    AAsset_close(asset);
-    delete[] buffer;
-
-    return printResult(result);
-}
-
 extern "C" JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_setup(
         JNIEnv *env,
         jobject obj,
         jobject inferenceInfo) {
+
+    // create Noon instance
+    Noon<uint8_t, float>* newInstance = new Noon<uint8_t, float>();
+
+    jclass instanceCls = env->GetObjectClass(obj);
+    jfieldID instanceId = env->GetFieldID(instanceCls, INSTANCE, "J");
+    env->SetLongField(obj, instanceId, reinterpret_cast<jlong>(newInstance));
+
+    // setup InferenceInfo
     InferenceInfo info;
     jclass cls = env->GetObjectClass(inferenceInfo);
-
     jfieldID typeId = env->GetFieldID(cls, "type", "I");
     info.type = env->GetIntField(inferenceInfo, typeId);
+    jfieldID modelSizeId = env->GetFieldID(cls, "modelSize", "I");
+    info.modelSize = env->GetIntField(inferenceInfo, modelSizeId);
+
+    if (info.modelSize > 0) {
+        jfieldID modelId = env->GetFieldID(cls, "model", "[B");
+        jobject modelObject = env->GetObjectField (inferenceInfo, modelId);
+        info.model = new int8_t[info.modelSize];
+        jbyteArray arr = reinterpret_cast<jbyteArray>(modelObject);
+        env->GetByteArrayRegion(arr, 0, sizeof(int8_t) * info.modelSize, info.model);
+    }
 
     jfieldID inputInfoId = env->GetFieldID(cls, "input", "Lcom/newstone/noon/InferenceInfo$InputInfo;");
     jfieldID outputInfoId = env->GetFieldID(cls, "output", "Lcom/newstone/noon/InferenceInfo$OutputInfo;");
@@ -155,4 +127,11 @@ Java_com_newstone_noon_Noon_getBenchmark(JNIEnv *env, jobject obj) {
     const std::string& result = instance->getBenchmark(BM_PROCESSING);
     jstring jbuf = env->NewStringUTF(result.c_str());
     return jbuf;
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_newstone_noon_Noon_destroy(JNIEnv *env, jobject thiz) {
+    if (outputBuffer != nullptr) {
+        delete[] outputBuffer;
+    }
 }

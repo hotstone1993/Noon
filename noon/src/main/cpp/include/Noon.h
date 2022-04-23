@@ -15,7 +15,8 @@ enum {
     PRE_PROCESSOR_ERROR = 2,
     PROCESSOR_NOT_INITIALIZED = 3,
     POST_PROCESSOR_ERROR = 4,
-    BUFFER_SIZE_ZERO_ERROR = 5
+    BUFFER_SIZE_ZERO_ERROR = 5,
+    NOT_PROCESSED = 6
 };
 
 enum class InferenceType {
@@ -33,6 +34,8 @@ struct OutputInfo {
 
 struct InferenceInfo {
     int type;
+    int8_t * model = nullptr;
+    unsigned modelSize = 0;
     InputInfo input;
     OutputInfo output;
 };
@@ -49,13 +52,13 @@ public:
     ~Noon();
 
     int setup(const InferenceInfo& info);
-    int loadModel(const char* file, size_t fileSize);
-    int inference(INPUT_TYPE* inputBuffer, OUTPUT_TYPE* outputBuffer);
+    int inference(void* inputBuffer, void* outputBuffer);
 
     const std::string& getBenchmark(const std::string&);
 private:
+    int loadModel(const char* file, size_t fileSize);
     void bypassInputData(INPUT_TYPE* inputBuffer, INPUT_TYPE* outputBuffer);
-    void bypassOutputData(OUTPUT_TYPE* inputBuffer, OUTPUT_TYPE* outputBuffer);
+    void setZeroToOutputData(OUTPUT_TYPE** outputBuffer);
 
     INPUT_TYPE* processedInputBuffer;
     OUTPUT_TYPE* processedOutputBuffer;

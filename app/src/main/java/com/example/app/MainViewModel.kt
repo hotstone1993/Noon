@@ -16,7 +16,7 @@ class MainViewModel: ViewModel() {
     private val nativeLib = Noon()
 
     private lateinit var input: ByteArray
-    private lateinit var output: FloatArray
+    private lateinit var output: List<List<Float>>
 
     private var frameCounter = 0
     private var lastFpsTimestamp = System.currentTimeMillis()
@@ -30,12 +30,11 @@ class MainViewModel: ViewModel() {
         this.labels = labels
     }
 
-    fun initNatvieLibrary(assetManager: AssetManager) {
-        nativeLib.create()
-        nativeLib.loadModel(assetManager, MODEL_PATH)
+    private fun getModel(assetManager: AssetManager): ByteArray {
+        return assetManager.open(MODEL_PATH).readBytes()
     }
 
-    fun process(image: ImageProxy) {
+    fun process(image: ImageProxy, assetManager: AssetManager) {
         if (pauseAnalysis) {
             image.close()
         }
@@ -43,9 +42,13 @@ class MainViewModel: ViewModel() {
         val pixelStride = image.planes.first().pixelStride
         if(!::input.isInitialized) {
             input = ByteArray(image.width * image.height * pixelStride)
-            output = FloatArray(10)
+            output = listOf(List(40, {0f}), List(40, {0f}), List(40, {0f}), List(40, {0f}))
+            val model = getModel(assetManager)
+            val modelSize = model.size
             val inferenceInfo = InferenceInfo(
                 type = InferenceInfo.InferenceType.IMAGE.ordinal,
+                model = getModel(assetManager),
+                modelSize = modelSize,
                 input = InferenceInfo.InputInfo(
                     shape = listOf(image.width, image.height, pixelStride)
                 ),
@@ -57,10 +60,10 @@ class MainViewModel: ViewModel() {
         }
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
-        nativeLib.inference(input, output)
-        if (ACCURACY_THRESHOLD <= output[5]) {
-            tvString.postValue("${labels[output[4].toInt() + 1]}: ${output[5]}")
-            rect.postValue(RectF(output[1], output[0], output[3], output[2]))
+        nativeLib.inference(input, output.flatten().toFloatArray())
+        if (ACCURACY_THRESHOLD <= output[2][0]) {
+            tvString.postValue("${labels[output[1][0].toInt() + 1]}: ${output[2][0]}")
+            rect.postValue(RectF(output[0][1], output[0][0], output[0][3], output[0][2]))
         } else {
             tvString.postValue("")
             rect.postValue(RectF(0.0f, 0.0f, 0.0f, 0.0f))

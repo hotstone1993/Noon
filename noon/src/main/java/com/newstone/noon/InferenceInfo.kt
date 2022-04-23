@@ -1,9 +1,11 @@
 package com.newstone.noon
 
 data class InferenceInfo(
-    var type: Int,
-    var input: InputInfo,
-    var output: OutputInfo
+    val type: Int,
+    val model: ByteArray,
+    val modelSize: Int,
+    val input: InputInfo,
+    val output: OutputInfo
 ) {
     enum class InferenceType {
         IMAGE, AUDIO

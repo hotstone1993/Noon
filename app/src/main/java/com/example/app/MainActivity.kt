@@ -63,7 +63,6 @@ class MainActivity: AppCompatActivity() {
             vm.saveButtonClickEvent()
         }
 
-        vm.initNatvieLibrary(resources.assets)
         vm.setLabels(FileUtil.loadLabels(this, LABELS_PATH))
     }
 
@@ -117,7 +116,7 @@ class MainActivity: AppCompatActivity() {
                 .build()
 
             imageAnalysis.setAnalyzer(executor, ImageAnalysis.Analyzer { image ->
-                vm.process(image)
+                vm.process(image, resources.assets)
             })
 
             // Create a new camera selector each time, enforcing lens facing
