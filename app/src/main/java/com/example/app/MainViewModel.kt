@@ -86,4 +86,8 @@ class MainViewModel: ViewModel() {
     fun saveButtonClickEvent() {
         nativeLib.saveImage()
     }
+
+    fun destory() {
+        nativeLib.destroy()
+    }
 }
