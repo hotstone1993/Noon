@@ -88,9 +88,7 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
         TfLiteIntArray* dims = interpreter->tensor(interpreter->outputs()[inputIdx])->dims;
         outputInfo.nodes.push_back({});
         for (int idx = 0; idx < dims->size; ++idx) {
-            if (dims->data[idx] != 1) {
-                outputInfo.nodes[inputIdx].shape.push_back(dims->data[idx]);
-            }
+            outputInfo.nodes[inputIdx].shape.push_back(dims->data[idx]);
         }
     }
 

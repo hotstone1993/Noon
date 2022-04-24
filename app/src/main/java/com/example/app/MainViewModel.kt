@@ -16,7 +16,7 @@ class MainViewModel: ViewModel() {
     private val nativeLib = Noon()
 
     private lateinit var input: ByteArray
-    private lateinit var output: List<List<Float>>
+    private lateinit var output: Array<Array<Float>>
 
     private var frameCounter = 0
     private var lastFpsTimestamp = System.currentTimeMillis()
@@ -41,8 +41,8 @@ class MainViewModel: ViewModel() {
 
         val pixelStride = image.planes.first().pixelStride
         if(!::input.isInitialized) {
-            input = ByteArray(image.width * image.height * pixelStride)
-            output = listOf(List(40, {0f}), List(40, {0f}), List(40, {0f}), List(40, {0f}))
+            input = ByteArray(image.width * image.height * pixelStride, {0})
+            output = arrayOf(Array(40, {0f}), Array(10, {0f}), Array(10, {0f}), Array(1, {0f}))
             val model = getModel(assetManager)
             val modelSize = model.size
             val inferenceInfo = InferenceInfo(
@@ -60,7 +60,7 @@ class MainViewModel: ViewModel() {
         }
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
-        nativeLib.inference(input, output.flatten().toFloatArray())
+        nativeLib.inference(input, output)
         if (ACCURACY_THRESHOLD <= output[2][0]) {
             tvString.postValue("${labels[output[1][0].toInt() + 1]}: ${output[2][0]}")
             rect.postValue(RectF(output[0][1], output[0][0], output[0][3], output[0][2]))

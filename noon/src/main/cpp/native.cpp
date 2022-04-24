@@ -94,7 +94,7 @@ Java_com_newstone_noon_Noon_setup(
 }
 
 extern "C" JNIEXPORT jint JNICALL
-        Java_com_newstone_noon_Noon_inference(
+        Java_com_newstone_noon_Noon_nativeInference(
                 JNIEnv *env,
                 jobject obj,
                 jbyteArray input,
