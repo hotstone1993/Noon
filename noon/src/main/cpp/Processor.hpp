@@ -8,7 +8,6 @@
 #include <android/log.h>
 #include <chrono>
 
-
 const char* const TAG = "Noon";
 
 #define TFLITE_MINIMAL_CHECK(x)                              \
@@ -55,7 +54,7 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const int8_t* file, size_t fi
 }
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
-int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(int type, const std::vector<int>& shape) {
     inputInfo = new BaseInfo();
     targetInfo = new BaseInfo();
 
@@ -79,8 +78,8 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
     }
 
     if(processedBuffer == nullptr) {
-        processedBuffer = new uint8_t[targetInfo->nodes[0].getSize()];
-        memset(processedBuffer, 0, sizeof(int8_t) * targetInfo->nodes[0].getSize());
+        processedBuffer = new INTPUT_TYPE[targetInfo->nodes[0].getSize()];
+        memset(processedBuffer, 0, sizeof(INTPUT_TYPE) * targetInfo->nodes[0].getSize());
     } else {
         return PROCESSOR_FAIL;
     }
@@ -93,7 +92,10 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::setup(const std::vector<int>& shape) {
     }
 
     if(filter == nullptr) {
-        filter = new SimpleAverageFilter<uint8_t>();
+        if (type == IMAGE) {
+            filter = new SimpleAverageFilter<INTPUT_TYPE>();
+        } else if (type == AUDIO) {
+        }
     }
     filter->setup(*inputInfo, *targetInfo);
 

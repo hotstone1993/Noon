@@ -20,6 +20,12 @@ enum {
     NOT_INITIALIZED = -2
 };
 
+enum {
+    IMAGE = 0,
+    AUDIO = 1,
+    UNKNOWN_TYPE = 2
+};
+
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 class Processor {
 public:
@@ -28,7 +34,7 @@ public:
 
     int loadModel(const int8_t* file, size_t fileSize);
     int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output);
-    int setup(const std::vector<int>& shape);
+    int setup(int type, const std::vector<int>& shape);
 
     std::vector<Node>& getNodes() {
         return outputInfo.nodes;

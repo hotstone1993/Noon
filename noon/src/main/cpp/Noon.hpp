@@ -13,7 +13,7 @@ Noon<INPUT_TYPE, OUTPUT_TYPE>::Noon(): processedInputBuffer(nullptr),
                                         preProcessor(nullptr),
                                         processor(nullptr),
                                         postProcessor(nullptr),
-                                        type(InferenceType::IMAGE) {
+                                        type(IMAGE) {
     if (processor == nullptr) {
         processor = new Processor<INPUT_TYPE, OUTPUT_TYPE>();
     }
@@ -44,12 +44,13 @@ int Noon<INPUT_TYPE, OUTPUT_TYPE>::setup(const InferenceInfo& info) {
         }
     }
 
-    if (static_cast<int>(InferenceType::IMAGE) == info.type) {
-    } else if (static_cast<int>(InferenceType::AUDIO) == info.type) {
-    } else {
+    if (info.type >= UNKNOWN_TYPE) {
         return UNKNOWN_INFERENCE_TYPE;
+    } else {
+        type = info.type;
     }
-    result = processor->setup(info.input.shape);
+
+    result = processor->setup(info.type, info.input.shape);
     if (result != SUCCESS) {
         return result;
     }

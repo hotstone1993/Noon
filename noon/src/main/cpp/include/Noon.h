@@ -19,11 +19,6 @@ enum {
     NOT_PROCESSED = 6
 };
 
-enum class InferenceType {
-    IMAGE = 0,
-    AUDIO = 1
-};
-
 struct InputInfo {
     std::vector<int> shape;
 };
@@ -70,7 +65,7 @@ private:
     BasePostProcessor<INPUT_TYPE, OUTPUT_TYPE>* postProcessor;
 
     std::unordered_map<std::string, std::string> benchmarkResults;
-    InferenceType type;
+    int type;
 };
 #include "../Noon.hpp"
 #endif //NOON_NOON_H
