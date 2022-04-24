@@ -32,7 +32,7 @@ Processor<INTPUT_TYPE, OUTPUT_TYPE>::~Processor() {
 }
 
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
-int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const int8_t* file, size_t fileSize) {
+int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const int8_t* file, size_t fileSize, int delegate) {
     modelBuffer = new char[fileSize];
     memcpy(modelBuffer, file, sizeof(char) * fileSize);
 
@@ -42,11 +42,14 @@ int Processor<INTPUT_TYPE, OUTPUT_TYPE>::loadModel(const int8_t* file, size_t fi
     builder->operator()(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
-    TfLiteGpuDelegateOptionsV2 option = TfLiteGpuDelegateOptionsV2Default();
-    delegate = TfLiteGpuDelegateV2Create(&option);
-    TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(delegate) == kTfLiteOk);
-
-//    TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
+    if (delegate == CPU) {
+        TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
+    }
+    else if (delegate == GPU) {
+        TfLiteGpuDelegateOptionsV2 option = TfLiteGpuDelegateOptionsV2Default();
+        this->delegate = TfLiteGpuDelegateV2Create(&option);
+        TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk);
+    }
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());
 

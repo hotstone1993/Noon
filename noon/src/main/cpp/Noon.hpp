@@ -33,9 +33,13 @@ template <typename INPUT_TYPE, typename OUTPUT_TYPE>
 int Noon<INPUT_TYPE, OUTPUT_TYPE>::setup(const InferenceInfo& info) {
     int result = SUCCESS;
 
+    if (info.delegate >= UNKNOWN_DELEGATE) {
+        return UNKNOWN_INFERENCE_DELEGATE;
+    }
+
     if (info.model != nullptr) {
         if (processor != nullptr) {
-            result = processor->loadModel(info.model, info.modelSize);
+            result = processor->loadModel(info.model, info.modelSize, info.delegate);
             if (result != SUCCESS) {
                 return result;
             }

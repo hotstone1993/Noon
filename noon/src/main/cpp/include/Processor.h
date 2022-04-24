@@ -26,13 +26,19 @@ enum {
     UNKNOWN_TYPE = 2
 };
 
+enum {
+    CPU = 0,
+    GPU = 1,
+    UNKNOWN_DELEGATE = 2
+};
+
 template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 class Processor {
 public:
     Processor();
     virtual ~Processor();
 
-    int loadModel(const int8_t* file, size_t fileSize);
+    int loadModel(const int8_t* file, size_t fileSize, int delegate);
     int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output);
     int setup(int type, const std::vector<int>& shape);
 

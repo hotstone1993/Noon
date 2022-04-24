@@ -12,11 +12,12 @@ enum {
     FAIL = -1,
     SUCCESS = 0,
     UNKNOWN_INFERENCE_TYPE = 1,
-    PRE_PROCESSOR_ERROR = 2,
-    PROCESSOR_NOT_INITIALIZED = 3,
-    POST_PROCESSOR_ERROR = 4,
-    BUFFER_SIZE_ZERO_ERROR = 5,
-    NOT_PROCESSED = 6
+    UNKNOWN_INFERENCE_DELEGATE = 2,
+    PRE_PROCESSOR_ERROR = 3,
+    PROCESSOR_NOT_INITIALIZED = 4,
+    POST_PROCESSOR_ERROR = 5,
+    BUFFER_SIZE_ZERO_ERROR = 6,
+    NOT_PROCESSED = 7
 };
 
 struct InputInfo {
@@ -29,6 +30,7 @@ struct OutputInfo {
 
 struct InferenceInfo {
     int type;
+    int delegate;
     int8_t * model = nullptr;
     unsigned modelSize = 0;
     InputInfo input;

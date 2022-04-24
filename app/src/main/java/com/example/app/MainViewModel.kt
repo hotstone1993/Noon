@@ -47,6 +47,7 @@ class MainViewModel: ViewModel() {
             val modelSize = model.size
             val inferenceInfo = InferenceInfo(
                 type = InferenceInfo.InferenceType.IMAGE.ordinal,
+                delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
                 model = getModel(assetManager),
                 modelSize = modelSize,
                 input = InferenceInfo.InputInfo(

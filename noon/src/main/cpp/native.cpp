@@ -47,6 +47,8 @@ Java_com_newstone_noon_Noon_setup(
     jclass cls = env->GetObjectClass(inferenceInfo);
     jfieldID typeId = env->GetFieldID(cls, "type", "I");
     info.type = env->GetIntField(inferenceInfo, typeId);
+    jfieldID delegateId = env->GetFieldID(cls, "delegate", "I");
+    info.delegate = env->GetIntField(inferenceInfo, delegateId);
     jfieldID modelSizeId = env->GetFieldID(cls, "modelSize", "I");
     info.modelSize = env->GetIntField(inferenceInfo, modelSizeId);
 
