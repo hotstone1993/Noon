@@ -3,18 +3,18 @@
 //
 
 #ifndef NOON_SIMPLEAVERAGEFILTER_H
-#define NOON_SINCFILTER_H
+#define NOON_SIMPLEAVERAGEFILTER_H
 
 #include "ImageFilter.h"
 
-template <typename T>
-class SimpleAverageFilter: public ImageFilter<T> {
+template<typename INTPUT_TYPE>
+class SimpleAverageFilter: public ImageFilter<INTPUT_TYPE> {
 public:
     SimpleAverageFilter();
     virtual ~SimpleAverageFilter();
 
     virtual int setup(const BaseInfo& inputInfo, const BaseInfo& targetInfo) override;
-    virtual int process(T* input, T* output) override;
+    virtual int process(void* originalInput, void* originalOutput) override;
 
 private:
     void calculateKernelAndStep();

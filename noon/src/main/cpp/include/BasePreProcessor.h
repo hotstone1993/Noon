@@ -5,14 +5,13 @@
 #ifndef NOON_BASEPREPROCESSOR_H
 #define NOON_BASEPREPROCESSOR_H
 
-template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 class BasePreProcessor {
 public:
     BasePreProcessor() {}
     virtual ~BasePreProcessor() {}
 
     virtual int setup() = 0;
-    virtual int inference(INTPUT_TYPE* inputBuffer, INTPUT_TYPE* output) = 0;
+    virtual int inference(void* inputBuffer, void* output) = 0;
 private:
 };
 

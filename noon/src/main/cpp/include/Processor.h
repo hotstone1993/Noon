@@ -6,13 +6,8 @@
 #define NOON_PROCESSOR_H
 
 #include <string>
-
-#include "tensorflow/lite/interpreter.h"
-#include "tensorflow/lite/kernels/register.h"
-#include "tensorflow/lite/model.h"
-#include "tensorflow/lite/optional_debug_tools.h"
-#include "tensorflow/lite/delegates/gpu/delegate.h"
-#include "ImageFilter.h"
+#include "BaseFilter.h"
+#include "NoonTensorFlowLite.h"
 
 enum {
     PROCESSOR_SUCCESS = 0,
@@ -26,40 +21,49 @@ enum {
     UNKNOWN_TYPE = 2
 };
 
-enum {
-    CPU = 0,
-    GPU = 1,
-    UNKNOWN_DELEGATE = 2
-};
-
-template <typename INTPUT_TYPE, typename OUTPUT_TYPE>
 class Processor {
 public:
-    Processor();
+    Processor(BaseML* ml);
     virtual ~Processor();
 
-    int loadModel(const int8_t* file, size_t fileSize, int delegate);
-    int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output);
-    int setup(int type, const std::vector<int>& shape);
+    template<typename INTPUT_TYPE, typename OUTPUT_TYPE>
+    int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output) {
+        tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
+        filter->process(inputBuffer, processedBuffer);
+
+        size_t size = targetInfo->nodes[0].getSize();
+        memcpy(interpreter->typed_input_tensor<INTPUT_TYPE>(0), processedBuffer, sizeof(INTPUT_TYPE) * size);
+
+        // Run inference
+        if (interpreter->Invoke() != kTfLiteOk) {
+            return PROCESSOR_FAIL;
+        }
+
+        size_t start = 0;
+        std::vector<int> outputIndices = interpreter->outputs();
+        for (int idx = 0; idx < outputIndices.size(); ++idx) {
+            memcpy(output + start,
+                   interpreter->typed_tensor<OUTPUT_TYPE>(outputIndices[idx]),
+                   sizeof(OUTPUT_TYPE) * outputInfo.nodes[idx].getSize()
+            );
+            start += outputInfo.nodes[idx].getSize();
+        }
+
+        return PROCESSOR_SUCCESS;
+    }
+    int setup(int inferenceType, NoonType noonType, const std::vector<int>& shape);
 
     std::vector<Node>& getNodes() {
         return outputInfo.nodes;
     }
 private:
     int destroy();
-    std::unique_ptr<tflite::FlatBufferModel> model;
-    tflite::ops::builtin::BuiltinOpResolver resolver;
-    std::unique_ptr<tflite::Interpreter> interpreter;
-    std::unique_ptr<tflite::InterpreterBuilder> builder;
-    TfLiteDelegate* delegate;
-
-    char* modelBuffer;
-    INTPUT_TYPE* processedBuffer;
+    void* processedBuffer;
     BaseInfo outputInfo;
-    ImageFilter<INTPUT_TYPE>* filter;
+    BaseFilter* filter;
 
+    BaseML* ml;
     BaseInfo* inputInfo;
     BaseInfo* targetInfo;
 };
-#include "../Processor.hpp"
 #endif //NOON_PROCESSOR_H

@@ -18,8 +18,9 @@ set( THIRDPARTY_PATH ../../../../thirdparty )
 
 set( SOURCE_PATH_LIST
         native.cpp
-        Noon.hpp
-        Processor.hpp
+        Noon.cpp
+        Processor.cpp
+        NoonTensorFlowLite.cpp
         ${THIRDPARTY_PATH}/lodepng/lodepng.cpp
         ${THIRDPARTY_PATH}/lodepng/lodepng_fuzzer.cpp
         ${THIRDPARTY_PATH}/lodepng/lodepng_util.cpp

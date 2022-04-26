@@ -25,6 +25,12 @@ struct Rectrangle {
     }                   \
 }
 
+#define ALLOC_CLASS(X, CLASS, TYPE) { \
+    if(X == nullptr) {                \
+        X = new CLASS<TYPE>();        \
+    }                  \
+}
+
 #define ALLOC_BUFFER(BUFFER, TYPE, SIZE) { \
     if (BUFFER == nullptr) {   \
         BUFFER = new TYPE[SIZE];\

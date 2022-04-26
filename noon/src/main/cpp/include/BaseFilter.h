@@ -5,6 +5,8 @@
 #ifndef NOON_BASEFILTER_H
 #define NOON_BASEFILTER_H
 
+#include <vector>
+
 struct Node {
     std::string name = "";
     std::vector<int> shape;
@@ -45,7 +47,11 @@ private:
 };
 
 class BaseFilter {
-
+public:
+    BaseFilter() {}
+    virtual ~BaseFilter() {}
+    virtual int setup(const BaseInfo& inputInfo, const BaseInfo& targetInfo) = 0;
+    virtual int process(void* originalInput, void* originalOutput) = 0;
 };
 
 #endif //NOON_BASEFILTER_H

@@ -5,6 +5,7 @@
 
 const char* const INSTANCE = "nativeInstance";
 void** outputBuffer = nullptr;
+const char* TAG = "Noon";
 
 int printResult(int result) {
     switch (result) {
@@ -22,11 +23,11 @@ int printResult(int result) {
     return result;
 }
 
-Noon<uint8_t, float>* getInstance(JNIEnv* env, const jobject& obj) {
+Noon* getInstance(JNIEnv* env, const jobject& obj) {
     jclass cls = env->GetObjectClass(obj);
     jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
     jlong instancePointer = env->GetLongField(obj, id);
-    return reinterpret_cast<Noon<uint8_t, float>*>(instancePointer);
+    return reinterpret_cast<Noon*>(instancePointer);
 }
 
 extern "C" JNIEXPORT jint JNICALL
@@ -36,7 +37,7 @@ Java_com_newstone_noon_Noon_setup(
         jobject inferenceInfo) {
 
     // create Noon instance
-    Noon<uint8_t, float>* newInstance = new Noon<uint8_t, float>();
+    Noon* newInstance = new Noon();
 
     jclass instanceCls = env->GetObjectClass(obj);
     jfieldID instanceId = env->GetFieldID(instanceCls, INSTANCE, "J");
@@ -91,6 +92,7 @@ Java_com_newstone_noon_Noon_setup(
         info.output.shape.push_back(item);
         env->DeleteLocalRef(itemObj);
     }
+    newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type);
 
     return printResult(getInstance(env, obj)->setup(info));
 }
@@ -103,7 +105,7 @@ extern "C" JNIEXPORT jint JNICALL
                 jfloatArray output) {
     int result = SUCCESS;
 
-    Noon<uint8_t, float>* instance = getInstance(env, obj);
+    Noon* instance = getInstance(env, obj);
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
     jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
 
@@ -119,13 +121,13 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_newstone_noon_Noon_saveImage(
         JNIEnv *env,
         jobject obj) {
-    Noon<uint8_t, float>* instance = getInstance(env, obj);
+    Noon* instance = getInstance(env, obj);
 }
 
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_newstone_noon_Noon_getBenchmark(JNIEnv *env, jobject obj) {
-    Noon<uint8_t, float>* instance = getInstance(env, obj);
+    Noon* instance = getInstance(env, obj);
     const std::string& result = instance->getBenchmark(BM_PROCESSING);
     jstring jbuf = env->NewStringUTF(result.c_str());
     return jbuf;

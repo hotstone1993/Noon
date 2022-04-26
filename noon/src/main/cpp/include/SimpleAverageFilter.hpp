@@ -26,10 +26,10 @@ void subProcess(T* input, T* output, unsigned int startX, unsigned int startY, u
                 xDiff = (xRatio * x) - currX;
                 yDiff = (yRatio * y) - currY;
 
-                A = input[inputWidth * inputPixelStride * currY + inputPixelStride * currX + ps] & 0xff ;
-                B = input[inputWidth * inputPixelStride * currY + inputPixelStride * (currX + 1) + ps] & 0xff ;
-                C = input[inputWidth * inputPixelStride * (currY + 1) + inputPixelStride * currX + ps] & 0xff ;
-                D = input[inputWidth * inputPixelStride * (currY + 1) + inputPixelStride * (currX + 1) + ps] & 0xff ;
+                A = input[inputWidth * inputPixelStride * currY + inputPixelStride * currX + ps];
+                B = input[inputWidth * inputPixelStride * currY + inputPixelStride * (currX + 1) + ps];
+                C = input[inputWidth * inputPixelStride * (currY + 1) + inputPixelStride * currX + ps];
+                D = input[inputWidth * inputPixelStride * (currY + 1) + inputPixelStride * (currX + 1) + ps];
                 pixel = static_cast<T>(A * (1 - xDiff) * (1 - yDiff) + B * (xDiff) * (1 - yDiff) + C * (yDiff) * (1 - xDiff) + D * (xDiff * yDiff));
                 output[targetWidth * targetPixelStride * x + targetPixelStride * (targetHeight - y - 1) + ps] = pixel;
             }
@@ -54,7 +54,9 @@ int SimpleAverageFilter<T>::setup(const BaseInfo& inputInfo, const BaseInfo& tar
 }
 
 template<typename T>
-int SimpleAverageFilter<T>::process(T* input, T* output) {
+int SimpleAverageFilter<T>::process(void* originalInput, void* originalOutput) {
+    T* input = static_cast<T*>(originalInput);
+    T* output = static_cast<T*>(originalOutput);
     //subProcess<T>(input, output, 0, 0, this->targetInfo.width, this->targetInfo.height, this->inputInfo, this->targetInfo);
     auto f1 = std::async(std::launch::async, subProcess<T>, input, output, 0, 0, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH] / 2, this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT] / 2, this->inputInfo, this->targetInfo);
     auto f2 = std::async(std::launch::async, subProcess<T>, input, output, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH] / 2, 0, this->targetInfo.nodes[INPUT_TYPE].shape[WIDTH], this->targetInfo.nodes[INPUT_TYPE].shape[HEIGHT] / 2, this->inputInfo, this->targetInfo);
