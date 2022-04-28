@@ -55,7 +55,67 @@ public:
     NoonResult loadModel(const char* file, size_t fileSize, MLMode mlType);
     NoonResult setup(const InferenceInfo& info);
 
-    NoonResult inference(void* inputBuffer, void* outputBuffer);
+    template<typename INPUT_TYPE>
+    NoonResult inference(INPUT_TYPE* inputBuffer) {
+        NoonResult result = SUCCESS;
+        std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+        auto* typedInputBuffer = (INPUT_TYPE *) inputBuffer;
+        auto* typedProcessedInputBuffer = (INPUT_TYPE *) processedInputBuffer;
+
+        if (preProcessor != nullptr) {
+            result = static_cast<NoonResult>(preProcessor->inference(typedInputBuffer,
+                                                                     typedProcessedInputBuffer));
+        } else {
+            bypassInputData<INPUT_TYPE>(&typedInputBuffer, &typedProcessedInputBuffer);
+        }
+        if (result != SUCCESS) {
+            return result;
+        }
+
+        std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+        benchmarkResults[BM_PRE_PROCESSING] = std::to_string(duration.count()) + "ms";
+        start = std::chrono::system_clock::now();
+
+        if (processor != nullptr) {
+            result = static_cast<NoonResult>(processor->inference<INPUT_TYPE>(typedProcessedInputBuffer));
+            if (result != SUCCESS) {
+                return result;
+            }
+        } else {
+            return PROCESSOR_NOT_INITIALIZED;
+        }
+
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+        benchmarkResults[BM_PROCESSING] = std::to_string(duration.count()) + "ms";
+
+        return result;
+    }
+    template<typename OUTPUT_TYPE>
+    NoonResult getOutput(OUTPUT_TYPE* outputBuffer) {
+        auto* typedProcessedInputBuffer = (OUTPUT_TYPE *) outputBuffer;
+        std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
+        NoonResult result;
+
+        if (processor != nullptr) {
+            result = static_cast<NoonResult>(processor->getOutput<OUTPUT_TYPE>(typedProcessedInputBuffer));
+            if (result != SUCCESS) {
+                return result;
+            }
+        } else {
+            return PROCESSOR_NOT_INITIALIZED;
+        }
+//    auto* typedProcessedOutputBuffer = (OUTPUT_TYPE *) processedOutputBuffer;
+//    if (postProcessor != nullptr) {
+//        result = postProcessor->inference(typedProcessedInputBuffer, typedProcessedOutputBuffer);
+//    } else {
+//        setZeroToOutputData(typeOutputBuffer);
+//        result = NOT_PROCESSED;
+//    }
+//
+        std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+        benchmarkResults[BM_POST_PROCESSING] = std::to_string(duration.count()) + "ms";
+        return result;
+    }
 
     const std::string& getBenchmark(const std::string&);
 private:

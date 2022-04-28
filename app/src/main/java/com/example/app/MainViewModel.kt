@@ -61,7 +61,8 @@ class MainViewModel: ViewModel() {
         }
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
-        nativeLib.inference(input, output)
+        nativeLib.inference(input)
+        nativeLib.getOutput(output)
         if (ACCURACY_THRESHOLD <= output[2][0]) {
             tvString.postValue("${labels[output[1][0].toInt() + 1]}: ${output[2][0]}")
             rect.postValue(RectF(output[0][1], output[0][0], output[0][3], output[0][2]))

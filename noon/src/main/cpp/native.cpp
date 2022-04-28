@@ -101,18 +101,15 @@ extern "C" JNIEXPORT jint JNICALL
         Java_com_newstone_noon_Noon_nativeInference(
                 JNIEnv *env,
                 jobject obj,
-                jbyteArray input,
-                jfloatArray output) {
+                jbyteArray input) {
     int result = SUCCESS;
 
     Noon* instance = getInstance(env, obj);
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
-    jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
 
-    result = instance->inference(reinterpret_cast<uint8_t *>(inputBuffer), outputBuffer);
+    result = instance->inference(reinterpret_cast<uint8_t *>(inputBuffer));
 
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
-    env->ReleaseFloatArrayElements(output, outputBuffer, 0);
 
     return result;
 }
@@ -138,4 +135,61 @@ Java_com_newstone_noon_Noon_destroy(JNIEnv *env, jobject thiz) {
     if (outputBuffer != nullptr) {
         delete[] outputBuffer;
     }
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetULongArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
+    // TODO: implement nativeGetULongArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetLongArrayOutput(JNIEnv *env, jobject thiz, jlongArray output) {
+    // TODO: implement nativeGetLongArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetDoubleArrayOutput(JNIEnv *env, jobject thiz,
+                                                       jdoubleArray output) {
+    // TODO: implement nativeGetDoubleArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetFloatArrayOutput(JNIEnv *env, jobject obj,
+                                                      jfloatArray output) {
+    jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
+    Noon* instance = getInstance(env, obj);
+    int result = instance->getOutput(outputBuffer);
+    env->ReleaseFloatArrayElements(output, outputBuffer, 0);
+    return result;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetIntArrayOutput(JNIEnv *env, jobject thiz, jintArray output) {
+    // TODO: implement nativeGetIntArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetUIntArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
+    // TODO: implement nativeGetUIntArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetShortArrayOutput(JNIEnv *env, jobject thiz,
+                                                      jshortArray output) {
+    // TODO: implement nativeGetShortArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetUShortArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
+    // TODO: implement nativeGetUShortArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetByteArrayOutput(JNIEnv *env, jobject thiz, jbyteArray output) {
+    // TODO: implement nativeGetByteArrayOutput()
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetUByteArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
+    // TODO: implement nativeGetUByteArrayOutput()
 }

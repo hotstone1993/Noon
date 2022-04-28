@@ -80,54 +80,6 @@ NoonResult Noon::setup(const InferenceInfo& info) {
     return result;
 }
 
-NoonResult Noon::inference(void* inputBuffer, void* outputBuffer) {
-    NoonResult result = SUCCESS;
-    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-    auto* typedInputBuffer = (uint8_t *) inputBuffer;
-    auto* typedProcessedInputBuffer = (uint8_t *) processedInputBuffer;
-    auto* typedOutputBuffer = (float *) outputBuffer;
-
-    if (preProcessor != nullptr) {
-        result = static_cast<NoonResult>(preProcessor->inference(typedInputBuffer,
-                                                                 typedProcessedInputBuffer));
-    } else {
-        bypassInputData<uint8_t>(&typedInputBuffer, &typedProcessedInputBuffer);
-    }
-    if (result != SUCCESS) {
-        return result;
-    }
-
-    std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-    benchmarkResults[BM_PRE_PROCESSING] = std::to_string(duration.count()) + "ms";
-    start = std::chrono::system_clock::now();
-
-    if (processor != nullptr) {
-        result = static_cast<NoonResult>(processor->inference<uint8_t, float>(typedProcessedInputBuffer, typedOutputBuffer));
-        if (result != SUCCESS) {
-            return result;
-        }
-    } else {
-        return PROCESSOR_NOT_INITIALIZED;
-    }
-
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-    benchmarkResults[BM_PROCESSING] = std::to_string(duration.count()) + "ms";
-//    start = std::chrono::system_clock::now();
-//
-//    if (postProcessor != nullptr) {
-//        result = postProcessor->inference(processedOutputBuffer, typeOutputBuffer);
-//    } else {
-//        setZeroToOutputData(typeOutputBuffer);
-//        result = NOT_PROCESSED;
-//    }
-//
-//    duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-//    benchmarkResults[BM_POST_PROCESSING] = std::to_string(duration.count()) + "ms";
-
-    return result;
-}
-
-
 const std::string& Noon::getBenchmark(const std::string& key) {
     return benchmarkResults[key];
 }

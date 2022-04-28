@@ -26,8 +26,8 @@ public:
     Processor(BaseML* ml);
     virtual ~Processor();
 
-    template<typename INTPUT_TYPE, typename OUTPUT_TYPE>
-    int inference(INTPUT_TYPE* inputBuffer, OUTPUT_TYPE* output) {
+    template<typename INTPUT_TYPE>
+    int inference(INTPUT_TYPE* inputBuffer) {
         tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
         filter->process(inputBuffer, processedBuffer);
 
@@ -39,6 +39,11 @@ public:
             return PROCESSOR_FAIL;
         }
 
+        return PROCESSOR_SUCCESS;
+    }
+    template<typename OUTPUT_TYPE>
+    int getOutput(OUTPUT_TYPE* output) {
+        tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
         size_t start = 0;
         std::vector<int> outputIndices = interpreter->outputs();
         for (int idx = 0; idx < outputIndices.size(); ++idx) {
