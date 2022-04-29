@@ -4,9 +4,6 @@ class Noon{
     private var nativeInstance: Long = 0
 
     external fun setup(info: InferenceInfo): Int
-    fun inference(input: ByteArray): Int {
-        return nativeInference(input)
-    }
 
     fun getOutput(output: Array<Array<Long>>): Int {
         val tempArray = output.flatten().toLongArray()
@@ -117,7 +114,17 @@ class Noon{
         return result
     }
 
-    private external fun nativeInference(input: ByteArray): Int
+    external fun inferenceULongArray(input: LongArray): Int
+    external fun inferenceLongArray(input: LongArray): Int
+    external fun inferenceDoubleArray(input: DoubleArray): Int
+    external fun inferenceFloatArray(input: FloatArray): Int
+    external fun inferenceIntArray(input: IntArray): Int
+    external fun inferenceUIntArray(input: IntArray): Int
+    external fun inferenceShortArray(input: ShortArray): Int
+    external fun inferenceUShortArray(input: ShortArray): Int
+    external fun inferenceByteArray(input: ByteArray): Int
+    external fun inferenceUByteArray(input: ByteArray): Int
+
     private external fun nativeGetULongArrayOutput(output: ULongArray): Int
     private external fun nativeGetLongArrayOutput(output: LongArray): Int
     private external fun nativeGetDoubleArrayOutput(output: DoubleArray): Int

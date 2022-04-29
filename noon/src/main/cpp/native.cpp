@@ -97,21 +97,178 @@ Java_com_newstone_noon_Noon_setup(
     return printResult(getInstance(env, obj)->setup(info));
 }
 
-extern "C" JNIEXPORT jint JNICALL
-        Java_com_newstone_noon_Noon_nativeInference(
-                JNIEnv *env,
-                jobject obj,
-                jbyteArray input) {
-    int result = SUCCESS;
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceULongArray(JNIEnv *env, jobject obj, jlongArray input) {
+    Noon* instance = getInstance(env, obj);
+    jlong* inputBuffer = env->GetLongArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<uint64_t *>(inputBuffer));
+    env->ReleaseLongArrayElements(input, inputBuffer, JNI_ABORT);
 
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceLongArray(JNIEnv *env, jobject obj, jlongArray input) {
+    Noon* instance = getInstance(env, obj);
+    jlong* inputBuffer = env->GetLongArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<int64_t *>(inputBuffer));
+    env->ReleaseLongArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceDoubleArray(JNIEnv *env, jobject obj,
+                                                       jdoubleArray input) {
+    Noon* instance = getInstance(env, obj);
+    jdouble* inputBuffer = env->GetDoubleArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<double *>(inputBuffer));
+    env->ReleaseDoubleArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceFloatArray(JNIEnv *env, jobject obj,
+                                                      jfloatArray input) {
+    Noon* instance = getInstance(env, obj);
+    jfloat* inputBuffer = env->GetFloatArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<float *>(inputBuffer));
+    env->ReleaseFloatArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceIntArray(JNIEnv *env, jobject obj, jintArray input) {
+    Noon* instance = getInstance(env, obj);
+    jint* inputBuffer = env->GetIntArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<int32_t *>(inputBuffer));
+    env->ReleaseIntArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceUIntArray(JNIEnv *env, jobject obj, jintArray input) {
+    // TODO: implement nativeInferenceUIntArray()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceShortArray(JNIEnv *env, jobject obj,
+                                                      jshortArray input) {
+    Noon* instance = getInstance(env, obj);
+    jshort* inputBuffer = env->GetShortArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<int16_t *>(inputBuffer));
+    env->ReleaseShortArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceUShortArray(JNIEnv *env, jobject obj, jshortArray input) {
+    Noon* instance = getInstance(env, obj);
+    jshort* inputBuffer = env->GetShortArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<uint16_t *>(inputBuffer));
+    env->ReleaseShortArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceByteArray(JNIEnv *env, jobject obj, jbyteArray input) {
     Noon* instance = getInstance(env, obj);
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
-
-    result = instance->inference(reinterpret_cast<uint8_t *>(inputBuffer));
-
+    int result = instance->inference(reinterpret_cast<int8_t *>(inputBuffer));
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
 
     return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_inferenceUByteArray(JNIEnv *env, jobject obj, jbyteArray input) {
+    Noon* instance = getInstance(env, obj);
+    jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
+    int result = instance->inference(reinterpret_cast<uint8_t *>(inputBuffer));
+    env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetULongArrayOutput(JNIEnv *env, jobject obj, jobject output) {
+    // TODO: implement nativeGetULongArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetLongArrayOutput(JNIEnv *env, jobject obj, jlongArray output) {
+    // TODO: implement nativeGetLongArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetDoubleArrayOutput(JNIEnv *env, jobject obj,
+                                                       jdoubleArray output) {
+    // TODO: implement nativeGetDoubleArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetFloatArrayOutput(JNIEnv *env, jobject obj,
+                                                      jfloatArray output) {
+    jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
+    Noon* instance = getInstance(env, obj);
+    int result = instance->getOutput(outputBuffer);
+    env->ReleaseFloatArrayElements(output, outputBuffer, 0);
+    return result;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetIntArrayOutput(JNIEnv *env, jobject obj, jintArray output) {
+    // TODO: implement nativeGetIntArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetUIntArrayOutput(JNIEnv *env, jobject obj, jobject output) {
+    // TODO: implement nativeGetUIntArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetShortArrayOutput(JNIEnv *env, jobject obj,
+                                                      jshortArray output) {
+    // TODO: implement nativeGetShortArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetUShortArrayOutput(JNIEnv *env, jobject obj, jobject output) {
+    // TODO: implement nativeGetUShortArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetByteArrayOutput(JNIEnv *env, jobject obj, jbyteArray output) {
+    // TODO: implement nativeGetByteArrayOutput()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_nativeGetUByteArrayOutput(JNIEnv *env, jobject obj, jobject output) {
+    // TODO: implement nativeGetUByteArrayOutput()
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -129,67 +286,11 @@ Java_com_newstone_noon_Noon_getBenchmark(JNIEnv *env, jobject obj) {
     jstring jbuf = env->NewStringUTF(result.c_str());
     return jbuf;
 }
+
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_newstone_noon_Noon_destroy(JNIEnv *env, jobject thiz) {
+Java_com_newstone_noon_Noon_destroy(JNIEnv *env, jobject obj) {
     if (outputBuffer != nullptr) {
         delete[] outputBuffer;
     }
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetULongArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
-    // TODO: implement nativeGetULongArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetLongArrayOutput(JNIEnv *env, jobject thiz, jlongArray output) {
-    // TODO: implement nativeGetLongArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetDoubleArrayOutput(JNIEnv *env, jobject thiz,
-                                                       jdoubleArray output) {
-    // TODO: implement nativeGetDoubleArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetFloatArrayOutput(JNIEnv *env, jobject obj,
-                                                      jfloatArray output) {
-    jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
-    Noon* instance = getInstance(env, obj);
-    int result = instance->getOutput(outputBuffer);
-    env->ReleaseFloatArrayElements(output, outputBuffer, 0);
-    return result;
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetIntArrayOutput(JNIEnv *env, jobject thiz, jintArray output) {
-    // TODO: implement nativeGetIntArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetUIntArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
-    // TODO: implement nativeGetUIntArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetShortArrayOutput(JNIEnv *env, jobject thiz,
-                                                      jshortArray output) {
-    // TODO: implement nativeGetShortArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetUShortArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
-    // TODO: implement nativeGetUShortArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetByteArrayOutput(JNIEnv *env, jobject thiz, jbyteArray output) {
-    // TODO: implement nativeGetByteArrayOutput()
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_newstone_noon_Noon_nativeGetUByteArrayOutput(JNIEnv *env, jobject thiz, jobject output) {
-    // TODO: implement nativeGetUByteArrayOutput()
 }
