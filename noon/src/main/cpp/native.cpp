@@ -74,27 +74,31 @@ Java_com_newstone_noon_Noon_setup(
     jclass inputCls = env->GetObjectClass(input);
     jfieldID inputShapeFieldId = env->GetFieldID(inputCls, "shape", "Ljava/util/List;");
     jobject inputShapeObject = env->GetObjectField(input, inputShapeFieldId);
-    int inputShapeSize = (int)env->CallIntMethod( inputShapeObject, sizeMethodId );
-    for(int i = 0; i < inputShapeSize; ++i) {
-        jobject itemObj = env->CallObjectMethod(inputShapeObject, getMethodId, i);
-        int item = env->CallIntMethod(itemObj, getIntMethodId);
-        info.input.shape.push_back(item);
-        env->DeleteLocalRef(itemObj);
+    if (inputShapeObject != NULL) {
+        int inputShapeSize = (int)env->CallIntMethod( inputShapeObject, sizeMethodId );
+        for(int i = 0; i < inputShapeSize; ++i) {
+            jobject itemObj = env->CallObjectMethod(inputShapeObject, getMethodId, i);
+            int item = env->CallIntMethod(itemObj, getIntMethodId);
+            info.input.shape.push_back(item);
+            env->DeleteLocalRef(itemObj);
+        }
     }
 
     jclass outputCls = env->GetObjectClass(output);
     jfieldID outputShapeFieldId = env->GetFieldID(outputCls, "shape", "Ljava/util/List;");
     jobject outputShapeObject = env->GetObjectField(output, outputShapeFieldId);
-    int outputShapeSize = (int)env->CallIntMethod( outputShapeObject, sizeMethodId );
-    for(int i = 0; i < outputShapeSize; ++i) {
-        jobject itemObj = env->CallObjectMethod(outputShapeObject, getMethodId, i);
-        int item = env->CallIntMethod(itemObj, getIntMethodId);
-        info.output.shape.push_back(item);
-        env->DeleteLocalRef(itemObj);
+    if (outputShapeObject != NULL) {
+        int outputShapeSize = (int)env->CallIntMethod( outputShapeObject, sizeMethodId );
+        for(int i = 0; i < outputShapeSize; ++i) {
+            jobject itemObj = env->CallObjectMethod(outputShapeObject, getMethodId, i);
+            int item = env->CallIntMethod(itemObj, getIntMethodId);
+            info.output.shape.push_back(item);
+            env->DeleteLocalRef(itemObj);
+        }
     }
     newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type);
 
-    return printResult(getInstance(env, obj)->setup(info));
+    return printResult(newInstance->setup(info));
 }
 
 extern "C"

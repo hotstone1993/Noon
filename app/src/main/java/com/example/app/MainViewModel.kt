@@ -48,14 +48,12 @@ class MainViewModel: ViewModel() {
             val inferenceInfo = InferenceInfo(
                 type = InferenceInfo.InferenceType.IMAGE.ordinal,
                 delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
-                model = getModel(assetManager),
+                model = model,
                 modelSize = modelSize,
                 input = InferenceInfo.InputInfo(
                     shape = listOf(image.width, image.height, pixelStride)
                 ),
-                output = InferenceInfo.OutputInfo(
-                    shape = listOf(10)
-                )
+                output = InferenceInfo.OutputInfo()
             )
             nativeLib.setup(inferenceInfo)
         }

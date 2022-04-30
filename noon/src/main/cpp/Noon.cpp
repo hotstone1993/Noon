@@ -70,12 +70,15 @@ NoonResult Noon::setup(const InferenceInfo& info) {
         outputBufferSize *= num;
     }
 
-    if (inputBufferSize == 1 || outputBufferSize == 1) {
+    if (inputBufferSize > 1) {
+        allocBuffer(&processedInputBuffer ,input, inputBufferSize);
+    } else {
         return BUFFER_SIZE_ZERO_ERROR;
     }
 
-    allocBuffer(&processedInputBuffer ,input, inputBufferSize);
-    allocBuffer(&processedOutputBuffer ,output, outputBufferSize);
+    if (outputBufferSize > 1) {
+        allocBuffer(&processedOutputBuffer ,output, outputBufferSize);
+    }
 
     return result;
 }

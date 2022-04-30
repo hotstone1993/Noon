@@ -18,7 +18,7 @@ data class InferenceInfo(
         var shape: List<Int>
     )
     data class OutputInfo(
-        var shape: List<Int>
+        var shape: List<Int>? = null
     )
 }
 
