@@ -96,7 +96,10 @@ Java_com_newstone_noon_Noon_setup(
             env->DeleteLocalRef(itemObj);
         }
     }
-    newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type);
+
+    jfieldID numThreadId = env->GetFieldID(cls, "numThread", "I");
+    int numThread = env->GetIntField(inferenceInfo, numThreadId);
+    newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type, numThread);
 
     return printResult(newInstance->setup(info));
 }

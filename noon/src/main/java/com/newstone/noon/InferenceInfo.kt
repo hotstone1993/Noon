@@ -3,6 +3,7 @@ package com.newstone.noon
 data class InferenceInfo(
     val type: Int,
     val delegate: Int,
+    val numThread: Int = -1,
     val model: ByteArray,
     val modelSize: Int,
     val input: InputInfo,

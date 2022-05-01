@@ -52,7 +52,7 @@ public:
     Noon();
     ~Noon();
 
-    NoonResult loadModel(const char* file, size_t fileSize, MLMode mlType);
+    NoonResult loadModel(const char* file, size_t fileSize, MLMode mlType, int numThread);
     NoonResult setup(const InferenceInfo& info);
 
     template<typename INPUT_TYPE>

@@ -45,13 +45,14 @@ NoonTensorFlowLite::~NoonTensorFlowLite() {
     DELETE_ARRAY(modelBuffer)
 }
 
-int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegate) {
+int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegate, int numThread) {
     modelBuffer = new char[fileSize];
     memcpy(modelBuffer, file, sizeof(char) * fileSize);
 
     model = tflite::FlatBufferModel::VerifyAndBuildFromBuffer(modelBuffer, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
     builder = std::make_unique<tflite::InterpreterBuilder>(*model, resolver);
+    builder->SetNumThreads(numThread);
     builder->operator()(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 

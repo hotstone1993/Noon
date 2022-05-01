@@ -91,7 +91,7 @@ inline void allocBuffer(void** buffer, NoonType type, unsigned int size) {
 
 class BaseML {
 public:
-    virtual int loadModel(const char* file, size_t fileSize, int delegate) = 0;
+    virtual int loadModel(const char* file, size_t fileSize, int delegate, int numThread) = 0;
     virtual void getType(NoonType& input, NoonType& output) = 0;
 };
 

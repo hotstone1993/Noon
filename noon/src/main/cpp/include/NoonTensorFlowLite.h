@@ -16,7 +16,7 @@ public:
     NoonTensorFlowLite();
     ~NoonTensorFlowLite();
 
-    int loadModel(const char* file, size_t fileSize, int delegate);
+    int loadModel(const char* file, size_t fileSize, int delegate, int numThread);
     void getType(NoonType& input, NoonType& output);
 
     tflite::Interpreter* getInterpreter() {
