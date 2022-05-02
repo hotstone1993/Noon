@@ -29,6 +29,8 @@ private:
     std::unique_ptr<tflite::InterpreterBuilder> builder;
     TfLiteDelegate* delegate;
 
+    int delegateType;
+
     char* modelBuffer;
 };
 

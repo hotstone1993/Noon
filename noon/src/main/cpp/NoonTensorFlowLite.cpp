@@ -43,9 +43,13 @@ NoonTensorFlowLite::NoonTensorFlowLite(): modelBuffer(nullptr),
 
 NoonTensorFlowLite::~NoonTensorFlowLite() {
     DELETE_ARRAY(modelBuffer)
+    if (this->delegateType == GPU) {
+        TfLiteGpuDelegateV2Delete(delegate);
+    }
 }
 
-int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegate, int numThread) {
+int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegateType, int numThread) {
+    this->delegateType = delegateType;
     modelBuffer = new char[fileSize];
     memcpy(modelBuffer, file, sizeof(char) * fileSize);
 
@@ -56,10 +60,10 @@ int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegat
     builder->operator()(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
-    if (delegate == CPU) {
+    if (delegateType == CPU) {
         TFLITE_MINIMAL_CHECK(interpreter->AllocateTensors() == kTfLiteOk);
     }
-    else if (delegate == GPU) {
+    else if (delegateType == GPU) {
         TfLiteGpuDelegateOptionsV2 option = TfLiteGpuDelegateOptionsV2Default();
         this->delegate = TfLiteGpuDelegateV2Create(&option);
         TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk);
