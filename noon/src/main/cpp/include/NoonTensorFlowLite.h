@@ -11,13 +11,18 @@
 #include "tensorflow/lite/optional_debug_tools.h"
 #include "tensorflow/lite/delegates/gpu/delegate.h"
 
+struct TFLInfo : public BaseMLInfo {
+    int numThread;
+    bool allowFp16PrecisionForFp32;
+};
+
 class NoonTensorFlowLite: public BaseML {
 public:
     NoonTensorFlowLite();
     ~NoonTensorFlowLite();
 
-    int loadModel(const char* file, size_t fileSize, int delegate, int numThread);
-    void getType(NoonType& input, NoonType& output);
+    int loadModel(const char* file, size_t fileSize, BaseMLInfo& info) override;
+    void getType(NoonType& input, NoonType& output) override;
 
     tflite::Interpreter* getInterpreter() {
         return interpreter.get();

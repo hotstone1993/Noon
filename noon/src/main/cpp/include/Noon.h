@@ -19,7 +19,6 @@ struct OutputInfo {
 
 struct InferenceInfo {
     int type;
-    int delegate;
     int8_t * model = nullptr;
     unsigned modelSize = 0;
     InputInfo input;
@@ -52,7 +51,7 @@ public:
     Noon();
     ~Noon();
 
-    NoonResult loadModel(const char* file, size_t fileSize, MLMode mlType, int numThread);
+    NoonResult loadModel(const char* file, size_t fileSize, MLMode mlType, BaseMLInfo& info);
     NoonResult setup(const InferenceInfo& info);
 
     template<typename INPUT_TYPE>

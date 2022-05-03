@@ -48,8 +48,6 @@ Java_com_newstone_noon_Noon_setup(
     jclass cls = env->GetObjectClass(inferenceInfo);
     jfieldID typeId = env->GetFieldID(cls, "type", "I");
     info.type = env->GetIntField(inferenceInfo, typeId);
-    jfieldID delegateId = env->GetFieldID(cls, "delegate", "I");
-    info.delegate = env->GetIntField(inferenceInfo, delegateId);
     jfieldID modelSizeId = env->GetFieldID(cls, "modelSize", "I");
     info.modelSize = env->GetIntField(inferenceInfo, modelSizeId);
 
@@ -97,9 +95,26 @@ Java_com_newstone_noon_Noon_setup(
         }
     }
 
-    jfieldID numThreadId = env->GetFieldID(cls, "numThread", "I");
-    int numThread = env->GetIntField(inferenceInfo, numThreadId);
-    newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type, numThread);
+    jfieldID mlInfoId = env->GetFieldID(cls, "mlInfo", "Lcom/newstone/noon/MLInfo;");
+    jobject mlInfoObject = env->GetObjectField(inferenceInfo, mlInfoId);
+    jclass mlInfoClass = env->GetObjectClass(mlInfoObject);
+    jfieldID modeId = env->GetFieldID(mlInfoClass, "mode", "I");
+    int mode = env->GetIntField(mlInfoObject, modeId);
+    if (mode == TENSORFLOW_LITE) {
+        TFLInfo tflInfo;
+        jfieldID delegateId = env->GetFieldID(mlInfoClass, "delegate", "I");
+        tflInfo.delegateType = env->GetIntField(mlInfoObject, delegateId);
+        jfieldID tflInfoId = env->GetFieldID(mlInfoClass, "tfl", "Lcom/newstone/noon/MLInfo$TFLInfo;");
+        jobject tflInfoObject = env->GetObjectField(mlInfoObject, tflInfoId);
+        jclass tflInfoClass = env->GetObjectClass(tflInfoObject);
+        jfieldID numThreadId = env->GetFieldID(tflInfoClass, "numThread", "I");
+        tflInfo.numThread = env->GetIntField(tflInfoObject, numThreadId);
+        jfieldID allowFp16PrecisionForFp32Id = env->GetFieldID(tflInfoClass, "allowFp16PrecisionForFp32", "Z");
+        tflInfo.allowFp16PrecisionForFp32 = env->GetBooleanField(tflInfoObject, allowFp16PrecisionForFp32Id);
+        newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type, tflInfo);
+    } else {
+        return -1;
+    }
 
     return printResult(newInstance->setup(info));
 }

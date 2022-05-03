@@ -48,15 +48,18 @@ NoonTensorFlowLite::~NoonTensorFlowLite() {
     }
 }
 
-int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegateType, int numThread) {
-    this->delegateType = delegateType;
+int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, BaseMLInfo& info) {
+    this->delegateType = info.delegateType;
+    TFLInfo castedInfo = static_cast<TFLInfo&>(info);
     modelBuffer = new char[fileSize];
     memcpy(modelBuffer, file, sizeof(char) * fileSize);
 
     model = tflite::FlatBufferModel::VerifyAndBuildFromBuffer(modelBuffer, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
     builder = std::make_unique<tflite::InterpreterBuilder>(*model, resolver);
-    builder->SetNumThreads(numThread);
+    if (castedInfo.numThread > 0) {
+        builder->SetNumThreads(castedInfo.numThread);
+    }
     builder->operator()(&interpreter);
     TFLITE_MINIMAL_CHECK(interpreter != nullptr);
 
@@ -65,6 +68,7 @@ int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, int delegat
     }
     else if (delegateType == GPU) {
         TfLiteGpuDelegateOptionsV2 option = TfLiteGpuDelegateOptionsV2Default();
+        option.is_precision_loss_allowed = castedInfo.allowFp16PrecisionForFp32;
         this->delegate = TfLiteGpuDelegateV2Create(&option);
         TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk);
     }

@@ -25,13 +25,13 @@ Noon::~Noon() {
     DELETE(postProcessor)
 }
 
-NoonResult Noon::loadModel(const char* file, size_t fileSize, MLMode mlType, int numThread) {
+NoonResult Noon::loadModel(const char* file, size_t fileSize, MLMode mlType, BaseMLInfo& info) {
     if (mlType == TENSORFLOW_LITE) {
         ml = new NoonTensorFlowLite();
     } else {
         return FAIL;
     }
-    ml->loadModel(file, fileSize, mlType, numThread);
+    ml->loadModel(file, fileSize, info);
     ml->getType(input, output);
 
     return SUCCESS;
@@ -39,10 +39,6 @@ NoonResult Noon::loadModel(const char* file, size_t fileSize, MLMode mlType, int
 
 NoonResult Noon::setup(const InferenceInfo& info) {
     NoonResult result = SUCCESS;
-
-    if (info.delegate >= UNKNOWN_DELEGATE) {
-        return UNKNOWN_INFERENCE_DELEGATE;
-    }
 
     if (info.model != nullptr) {
         if (processor == nullptr) {

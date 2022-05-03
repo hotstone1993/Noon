@@ -6,6 +6,7 @@ import androidx.camera.core.*
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.newstone.noon.InferenceInfo
+import com.newstone.noon.MLInfo
 import com.newstone.noon.Noon
 
 class MainViewModel: ViewModel() {
@@ -47,7 +48,14 @@ class MainViewModel: ViewModel() {
             val modelSize = model.size
             val inferenceInfo = InferenceInfo(
                 type = InferenceInfo.InferenceType.IMAGE.ordinal,
-                delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
+                mlInfo = MLInfo(
+                    mode = MLInfo.MlMode.TENSORFLOW_LITE.ordinal,
+                    delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
+                    tfl = MLInfo.TFLInfo(
+                        numThread = 4,
+                        allowFp16PrecisionForFp32 = false
+                    )
+                ),
                 model = model,
                 modelSize = modelSize,
                 input = InferenceInfo.InputInfo(
