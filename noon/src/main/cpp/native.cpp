@@ -104,7 +104,8 @@ Java_com_newstone_noon_Noon_setup(
         TFLInfo tflInfo;
         jfieldID delegateId = env->GetFieldID(mlInfoClass, "delegate", "I");
         tflInfo.delegateType = env->GetIntField(mlInfoObject, delegateId);
-        jfieldID tflInfoId = env->GetFieldID(mlInfoClass, "tfl", "Lcom/newstone/noon/MLInfo$TFLInfo;");
+        jfieldID tflInfoId = env->GetFieldID(mlInfoClass, "info",
+                                             "Lcom/newstone/noon/MLInfo$BaseInfo;");
         jobject tflInfoObject = env->GetObjectField(mlInfoObject, tflInfoId);
         jclass tflInfoClass = env->GetObjectClass(tflInfoObject);
         jfieldID numThreadId = env->GetFieldID(tflInfoClass, "numThread", "I");

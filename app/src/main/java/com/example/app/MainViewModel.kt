@@ -51,7 +51,7 @@ class MainViewModel: ViewModel() {
                 mlInfo = MLInfo(
                     mode = MLInfo.MlMode.TENSORFLOW_LITE.ordinal,
                     delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
-                    tfl = MLInfo.TFLInfo(
+                    info = MLInfo.TFLInfo(
                         numThread = 4,
                         allowFp16PrecisionForFp32 = false
                     )
