@@ -10,7 +10,8 @@
 enum {
     CPU = 0,
     GPU = 1,
-    UNKNOWN_DELEGATE = 2
+    NNAPI = 2,
+    UNKNOWN_DELEGATE = -1
 };
 
 typedef enum {

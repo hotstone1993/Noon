@@ -43,8 +43,12 @@ NoonTensorFlowLite::NoonTensorFlowLite(): modelBuffer(nullptr),
 
 NoonTensorFlowLite::~NoonTensorFlowLite() {
     DELETE_ARRAY(modelBuffer)
-    if (this->delegateType == GPU) {
+    if (delegateType == GPU) {
         TfLiteGpuDelegateV2Delete(delegate);
+    } else if (delegateType == NNAPI) {
+        if (delegate != nullptr) {
+            delete delegate;
+        }
     }
 }
 
@@ -71,6 +75,10 @@ int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, BaseMLInfo&
         option.is_precision_loss_allowed = castedInfo.allowFp16PrecisionForFp32;
         this->delegate = TfLiteGpuDelegateV2Create(&option);
         TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk);
+    } else if (delegateType == NNAPI) {
+        tflite::StatefulNnApiDelegate::Options options = tflite::StatefulNnApiDelegate::Options();
+        options.allow_fp16 = castedInfo.allowFp16PrecisionForFp32;
+        this->delegate = new tflite::StatefulNnApiDelegate(options);
     }
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());

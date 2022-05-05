@@ -12,7 +12,7 @@ data class InferenceInfo(
         IMAGE, AUDIO
     }
     enum class InferenceDelegate {
-        CPU, GPU
+        CPU, GPU, NNAPI
     }
     data class InputInfo(
         var shape: List<Int>
