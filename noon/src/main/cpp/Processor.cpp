@@ -10,6 +10,7 @@
 
 Processor::Processor(BaseML* ml):
     ml(ml),
+    noonType(NoonUnknown),
     processedBuffer(nullptr),
     filter(nullptr),
     inputInfo(nullptr),
@@ -28,6 +29,7 @@ int Processor::setup(int inferenceType, NoonType noonType, const std::vector<int
         return NOT_INITIALIZED;
     }
 
+    this->noonType = noonType;
     inputInfo->nodes.emplace_back();
     for (const int& dim: shape) {
         inputInfo->nodes[0].shape.push_back(dim);
@@ -72,7 +74,7 @@ int Processor::setup(int inferenceType, NoonType noonType, const std::vector<int
 ////////////////////////////////////////////////////////////////////////////
 
 int Processor::destroy() {
-    DELETE_ARRAY(processedBuffer)
+    deAllocBuffer(&processedBuffer, noonType);
     DELETE(filter)
     DELETE(inputInfo)
     DELETE(targetInfo)

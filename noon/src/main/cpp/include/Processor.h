@@ -63,6 +63,7 @@ public:
     }
 private:
     int destroy();
+    NoonType noonType;
     void* processedBuffer;
     BaseInfo outputInfo;
     BaseFilter* filter;

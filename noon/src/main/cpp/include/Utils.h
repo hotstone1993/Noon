@@ -25,6 +25,14 @@ struct Rectrangle {
     }                   \
 }
 
+#define DELETE_VOID_POINTER(X, TYPE) { \
+    TYPE* temp = static_cast<TYPE*>(X); \
+    if(temp != nullptr) { \
+        delete[] temp;     \
+        X = nullptr;    \
+    }                   \
+}
+
 #define ALLOC_CLASS(X, CLASS, TYPE) { \
     if(X == nullptr) {                \
         X = new CLASS<TYPE>();        \

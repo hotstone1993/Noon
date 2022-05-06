@@ -66,6 +66,30 @@ inline void allocBuffer(void** buffer, NoonType type, unsigned int size) {
     }
 }
 
+inline void deAllocBuffer(void** buffer, NoonType type) {
+    if (type == NoonFloat64) {
+        DELETE_VOID_POINTER(*buffer, double)
+    } else if (type == NoonFloat32) {
+        DELETE_VOID_POINTER(*buffer, float)
+    } else if (type == NoonInt64) {
+        DELETE_VOID_POINTER(*buffer, int64_t)
+    } else if (type == NoonUInt64) {
+        DELETE_VOID_POINTER(*buffer, uint64_t)
+    } else if (type == NoonInt32) {
+        DELETE_VOID_POINTER(*buffer, int32_t)
+    } else if (type == NoonUInt32) {
+        DELETE_VOID_POINTER(*buffer, uint32_t)
+    } else if (type == NoonInt16) {
+        DELETE_VOID_POINTER(*buffer, int16_t)
+    } else if (type == NoonUInt16) {
+        DELETE_VOID_POINTER(*buffer, uint16_t)
+    } else if (type == NoonInt8) {
+        DELETE_VOID_POINTER(*buffer, int8_t)
+    } else if (type == NoonUInt8) {
+        DELETE_VOID_POINTER(*buffer, uint8_t)
+    }
+}
+
 #define ALLOC_TEMPLATE_CLASS(target, className, type) {\
     if (type == NoonFloat64) {\
         ALLOC_CLASS(target, className, double); \
