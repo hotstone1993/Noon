@@ -61,6 +61,7 @@ int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, BaseMLInfo&
     model = tflite::FlatBufferModel::VerifyAndBuildFromBuffer(modelBuffer, fileSize);
     TFLITE_MINIMAL_CHECK(model != nullptr);
     builder = std::make_unique<tflite::InterpreterBuilder>(*model, resolver);
+
     if (castedInfo.numThread > 0) {
         builder->SetNumThreads(castedInfo.numThread);
     }
@@ -74,11 +75,12 @@ int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, BaseMLInfo&
         TfLiteGpuDelegateOptionsV2 option = TfLiteGpuDelegateOptionsV2Default();
         option.is_precision_loss_allowed = castedInfo.allowFp16PrecisionForFp32;
         this->delegate = TfLiteGpuDelegateV2Create(&option);
-        TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk);
+        TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk)
     } else if (delegateType == NNAPI) {
         tflite::StatefulNnApiDelegate::Options options = tflite::StatefulNnApiDelegate::Options();
         options.allow_fp16 = castedInfo.allowFp16PrecisionForFp32;
         this->delegate = new tflite::StatefulNnApiDelegate(options);
+        TFLITE_MINIMAL_CHECK(interpreter->ModifyGraphWithDelegate(this->delegate) == kTfLiteOk)
     }
     printf("=== Pre-invoke Interpreter State ===\n");
     tflite::PrintInterpreterState(interpreter.get());

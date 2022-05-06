@@ -28,19 +28,10 @@ set( SOURCE_PATH_LIST
 
 add_library( # Sets the name of the library.
         ${PROJECT_NAME}
-
              # Sets the library as a shared library.
              SHARED
-
              # Provides a relative path to your source file(s).
              ${SOURCE_PATH_LIST} )
-
-# Searches for a specified prebuilt library and stores the path as a
-# variable. Because CMake includes system libraries in the search path by
-# default, you only need to specify the name of the public NDK library
-# you want to add. CMake verifies that the library exists before
-# completing its build.
-
 
 find_library( # Sets the name of the path variable.
                 log-lib
@@ -64,6 +55,9 @@ target_link_libraries( # Specifies the target library.
                         ${PROJECT_NAME} PUBLIC
                         ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libtensorflowlite.so
                         ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libtensorflowlite_gpu_delegate.so
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libnnapi_delegate_no_nnapi_implementation.so
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libnnapi_implementation.so
+                        ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libnnapi_util.so
                         android
                        # Links the target library to the log library
                        # included in the NDK.
