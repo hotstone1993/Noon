@@ -12,6 +12,9 @@ int printResult(int result) {
         case -1:
             __android_log_print(ANDROID_LOG_ERROR, TAG, "Unknown Error");
             break;
+        case -2:
+            __android_log_print(ANDROID_LOG_ERROR, TAG, "Noon instance has not yet been initialized.");
+            break;
         case 0:
             __android_log_print(ANDROID_LOG_INFO, TAG, "SUCCESS");
             break;
@@ -27,6 +30,9 @@ Noon* getInstance(JNIEnv* env, const jobject& obj) {
     jclass cls = env->GetObjectClass(obj);
     jfieldID id = env->GetFieldID(cls, INSTANCE, "J");
     jlong instancePointer = env->GetLongField(obj, id);
+    if (instancePointer == 0) {
+        return NULL;
+    }
     return reinterpret_cast<Noon*>(instancePointer);
 }
 
@@ -316,4 +322,63 @@ Java_com_newstone_noon_Noon_destroy(JNIEnv *env, jobject obj) {
     if (outputBuffer != nullptr) {
         delete[] outputBuffer;
     }
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_getInputArraySize(JNIEnv *env, jobject obj) {
+    Noon* instance = getInstance(env, obj);
+    if (instance != NULL) {
+        return instance->getInputArraySize();
+    }
+    return printResult(-2);
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_getOutputArraySize(JNIEnv *env, jobject obj) {
+    Noon* instance = getInstance(env, obj);
+    if (instance != NULL) {
+        return instance->getOutputArraySize();
+    }
+    return printResult(-2);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_getInputDataType(JNIEnv *env, jobject obj, jint idx) {
+    Noon* instance = getInstance(env, obj);
+    if (instance != NULL) {
+        return instance->getInputDataType(idx);
+    }
+    return printResult(-2);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_getOutputDataType(JNIEnv *env, jobject obj, jint idx) {
+    Noon* instance = getInstance(env, obj);
+    if (instance != NULL) {
+        return instance->getOutputDataType(idx);
+    }
+    return printResult(-2);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_getInputBufferSize(JNIEnv *env, jobject obj, jint idx) {
+    Noon* instance = getInstance(env, obj);
+    if (instance != NULL) {
+        return instance->getInputBufferSize(idx);
+    }
+    return printResult(-2);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_newstone_noon_Noon_getOutputBufferSize(JNIEnv *env, jobject obj, jint idx) {
+    Noon* instance = getInstance(env, obj);
+    if (instance != NULL) {
+        return instance->getOutputBufferSize(idx);
+    }
+    return printResult(-2);
 }

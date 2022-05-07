@@ -28,6 +28,13 @@ public:
     tflite::Interpreter* getInterpreter() {
         return interpreter.get();
     }
+
+    int getInputArraySize();
+    int getOutputArraySize();
+    NoonType getInputDataType(int idx);
+    NoonType getOutputDataType(int idx);
+    size_t getInputBufferSize(int idx);
+    size_t getOutputBufferSize(int idx);
 private:
     std::unique_ptr<tflite::FlatBufferModel> model;
     tflite::ops::builtin::BuiltinOpResolver resolver;

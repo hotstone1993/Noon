@@ -118,6 +118,12 @@ public:
     }
 
     const std::string& getBenchmark(const std::string&);
+    int getInputArraySize();
+    int getOutputArraySize();
+    NoonType getInputDataType(int idx);
+    NoonType getOutputDataType(int idx);
+    size_t getInputBufferSize(int idx);
+    size_t getOutputBufferSize(int idx);
 private:
     template <typename INPUT_TYPE>
     void bypassInputData(INPUT_TYPE** inputBuffer, INPUT_TYPE** outputBuffer) {
@@ -126,6 +132,7 @@ private:
     void setZeroToOutputData(void** outputBuffer);
 
     BaseML* ml;
+    MLMode mlType;
     void* processedInputBuffer;
     void* processedOutputBuffer;
     size_t inputBufferSize;

@@ -17,9 +17,7 @@ class MainViewModel: ViewModel() {
     private val nativeLib = Noon()
 
     private lateinit var input: ByteArray
-    private lateinit var positionOutput: FloatArray
-    private lateinit var labelIdxOutput: FloatArray
-    private lateinit var confidenceOutput: FloatArray
+    private var outputs = mutableListOf<FloatArray>()
 
     private var frameCounter = 0
     private var lastFpsTimestamp = System.currentTimeMillis()
@@ -45,9 +43,6 @@ class MainViewModel: ViewModel() {
         val pixelStride = image.planes.first().pixelStride
         if(!::input.isInitialized) {
             input = ByteArray(image.width * image.height * pixelStride, {0})
-            positionOutput = FloatArray(4 * 10)
-            labelIdxOutput = FloatArray(10)
-            confidenceOutput = FloatArray(10)
             val model = getModel(assetManager)
             val modelSize = model.size
             val inferenceInfo = InferenceInfo(
@@ -68,16 +63,19 @@ class MainViewModel: ViewModel() {
                 output = InferenceInfo.OutputInfo()
             )
             nativeLib.setup(inferenceInfo)
+            for (i in 0 until nativeLib.getOutputArraySize()) {
+                outputs.add(nativeLib.allocFloatBuffer(i, false))
+            }
         }
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
         nativeLib.inferenceUByteArray(input)
-        nativeLib.nativeGetFloatArrayOutput(0, positionOutput)
-        nativeLib.nativeGetFloatArrayOutput(1, labelIdxOutput)
-        nativeLib.nativeGetFloatArrayOutput(2, confidenceOutput)
-        if (ACCURACY_THRESHOLD <= confidenceOutput[0]) {
-            tvString.postValue("${labels[labelIdxOutput[0].toInt() + 1]}: ${confidenceOutput[0]}")
-            rect.postValue(RectF(positionOutput[1], positionOutput[0], positionOutput[3], positionOutput[2]))
+        for (i in 0 until nativeLib.getOutputArraySize()) {
+            nativeLib.nativeGetFloatArrayOutput(i, outputs[i])
+        }
+        if (ACCURACY_THRESHOLD <= outputs[2][0]) {
+            tvString.postValue("${labels[outputs[1][0].toInt() + 1]}: ${outputs[2][0]}")
+            rect.postValue(RectF(outputs[0][1], outputs[0][0], outputs[0][3], outputs[0][2]))
         } else {
             tvString.postValue("")
             rect.postValue(RectF(0.0f, 0.0f, 0.0f, 0.0f))

@@ -6,6 +6,7 @@
 #include <chrono>
 
 Noon::Noon(): ml(nullptr),
+                mlType(TENSORFLOW_LITE),
                 processedInputBuffer(nullptr),
                 processedOutputBuffer(nullptr),
                 inputBufferSize(1),
@@ -26,6 +27,7 @@ Noon::~Noon() {
 }
 
 NoonResult Noon::loadModel(const char* file, size_t fileSize, MLMode mlType, BaseMLInfo& info) {
+    this->mlType = mlType;
     if (mlType == TENSORFLOW_LITE) {
         ml = new NoonTensorFlowLite();
     } else {
@@ -83,6 +85,83 @@ const std::string& Noon::getBenchmark(const std::string& key) {
     return benchmarkResults[key];
 }
 
+int Noon::getInputArraySize() {
+    if (mlType == TENSORFLOW_LITE) {
+        if (ml == nullptr) {
+            return FAIL;
+        }
+        return static_cast<NoonTensorFlowLite*>(ml)->getInputArraySize();
+    } else if (mlType == PYTORCH) {
+        return FAIL;
+    } else {
+        return FAIL;
+    }
+}
+
+int Noon::getOutputArraySize() {
+    if (mlType == TENSORFLOW_LITE) {
+        if (ml == nullptr) {
+            return FAIL;
+        }
+        return static_cast<NoonTensorFlowLite*>(ml)->getOutputArraySize();
+    } else if (mlType == PYTORCH) {
+        return FAIL;
+    } else {
+        return FAIL;
+    }
+}
+
+NoonType Noon::getInputDataType(int idx) {
+    if (mlType == TENSORFLOW_LITE) {
+        if (ml == nullptr) {
+            return NoonUnknown;
+        }
+        return static_cast<NoonTensorFlowLite*>(ml)->getInputDataType(idx);
+    } else if (mlType == PYTORCH) {
+        return NoonUnknown;
+    } else {
+        return NoonUnknown;
+    }
+}
+
+NoonType Noon::getOutputDataType(int idx) {
+    if (mlType == TENSORFLOW_LITE) {
+        if (ml == nullptr) {
+            return NoonUnknown;
+        }
+        return static_cast<NoonTensorFlowLite*>(ml)->getOutputDataType(idx);
+    } else if (mlType == PYTORCH) {
+        return NoonUnknown;
+    } else {
+        return NoonUnknown;
+    }
+}
+
+size_t Noon::getInputBufferSize(int idx) {
+    if (mlType == TENSORFLOW_LITE) {
+        if (ml == nullptr) {
+            return 0;
+        }
+        return static_cast<NoonTensorFlowLite*>(ml)->getInputBufferSize(idx);
+    } else if (mlType == PYTORCH) {
+        return 0;
+    } else {
+        return 0;
+    }
+}
+
+size_t Noon::getOutputBufferSize(int idx) {
+    if (mlType == TENSORFLOW_LITE) {
+        if (ml == nullptr) {
+            return 0;
+        }
+        return static_cast<NoonTensorFlowLite*>(ml)->getOutputBufferSize(idx);
+    } else if (mlType == PYTORCH) {
+        return 0;
+    } else {
+        return 0;
+    }
+}
 // =================================================================================================
 
 void Noon::setZeroToOutputData(void** outputBuffer) {

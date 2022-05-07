@@ -92,3 +92,67 @@ void NoonTensorFlowLite::getType(NoonType& input, NoonType& output) {
     input = mappingType(interpreter->tensor(interpreter->inputs()[0])->type);
     output = mappingType(interpreter->tensor(interpreter->outputs()[0])->type);
 }
+
+int NoonTensorFlowLite::getInputArraySize() {
+    if (interpreter == nullptr) {
+        return -1;
+    }
+    return interpreter->inputs().size();
+}
+
+int NoonTensorFlowLite::getOutputArraySize() {
+    if (interpreter == nullptr) {
+        return -1;
+    }
+    return interpreter->outputs().size();
+}
+
+NoonType NoonTensorFlowLite::getInputDataType(int idx) {
+    if (interpreter == nullptr) {
+        return NoonUnknown;
+    }
+    if (interpreter->inputs().size() <= idx) {
+        return NoonUnknown;
+    }
+
+    return mappingType(interpreter->tensor(interpreter->inputs()[idx])->type);
+}
+
+NoonType NoonTensorFlowLite::getOutputDataType(int idx) {
+    if (interpreter == nullptr) {
+        return NoonUnknown;
+    }
+    if (interpreter->outputs().size() <= idx) {
+        return NoonUnknown;
+    }
+
+    return mappingType(interpreter->tensor(interpreter->outputs()[idx])->type);
+}
+
+size_t NoonTensorFlowLite::getInputBufferSize(int idx) {
+    if (interpreter == nullptr) {
+        return 0;
+    }
+    if (interpreter->inputs().size() <= idx) {
+        return 0;
+    }
+    size_t result = 1;
+    for(int i = 0; i < interpreter->tensor(interpreter->inputs()[idx])->dims->size; ++i) {
+        result *= interpreter->tensor(interpreter->inputs()[idx])->dims->data[i];
+    }
+    return result;
+}
+
+size_t NoonTensorFlowLite::getOutputBufferSize(int idx) {
+    if (interpreter == nullptr) {
+        return 0;
+    }
+    if (interpreter->outputs().size() <= idx) {
+        return 0;
+    }
+    size_t result = 1;
+    for(int i = 0; i < interpreter->tensor(interpreter->outputs()[idx])->dims->size; ++i) {
+        result *= interpreter->tensor(interpreter->outputs()[idx])->dims->data[i];
+    }
+    return result;
+}
