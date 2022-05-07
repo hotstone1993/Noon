@@ -17,7 +17,9 @@ class MainViewModel: ViewModel() {
     private val nativeLib = Noon()
 
     private lateinit var input: ByteArray
-    private lateinit var output: Array<Array<Float>>
+    private lateinit var positionOutput: FloatArray
+    private lateinit var labelIdxOutput: FloatArray
+    private lateinit var confidenceOutput: FloatArray
 
     private var frameCounter = 0
     private var lastFpsTimestamp = System.currentTimeMillis()
@@ -43,7 +45,9 @@ class MainViewModel: ViewModel() {
         val pixelStride = image.planes.first().pixelStride
         if(!::input.isInitialized) {
             input = ByteArray(image.width * image.height * pixelStride, {0})
-            output = arrayOf(Array(40, {0f}), Array(10, {0f}), Array(10, {0f}), Array(1, {0f}))
+            positionOutput = FloatArray(4 * 10)
+            labelIdxOutput = FloatArray(10)
+            confidenceOutput = FloatArray(10)
             val model = getModel(assetManager)
             val modelSize = model.size
             val inferenceInfo = InferenceInfo(
@@ -68,10 +72,12 @@ class MainViewModel: ViewModel() {
 
         image.planes.first().buffer.get(input, 0, image.width * image.height * pixelStride)
         nativeLib.inferenceUByteArray(input)
-        nativeLib.getOutput(output)
-        if (ACCURACY_THRESHOLD <= output[2][0]) {
-            tvString.postValue("${labels[output[1][0].toInt() + 1]}: ${output[2][0]}")
-            rect.postValue(RectF(output[0][1], output[0][0], output[0][3], output[0][2]))
+        nativeLib.nativeGetFloatArrayOutput(0, positionOutput)
+        nativeLib.nativeGetFloatArrayOutput(1, labelIdxOutput)
+        nativeLib.nativeGetFloatArrayOutput(2, confidenceOutput)
+        if (ACCURACY_THRESHOLD <= confidenceOutput[0]) {
+            tvString.postValue("${labels[labelIdxOutput[0].toInt() + 1]}: ${confidenceOutput[0]}")
+            rect.postValue(RectF(positionOutput[1], positionOutput[0], positionOutput[3], positionOutput[2]))
         } else {
             tvString.postValue("")
             rect.postValue(RectF(0.0f, 0.0f, 0.0f, 0.0f))

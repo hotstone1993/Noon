@@ -92,4 +92,3 @@ void NoonTensorFlowLite::getType(NoonType& input, NoonType& output) {
     input = mappingType(interpreter->tensor(interpreter->inputs()[0])->type);
     output = mappingType(interpreter->tensor(interpreter->outputs()[0])->type);
 }
-

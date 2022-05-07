@@ -89,14 +89,15 @@ public:
 
         return result;
     }
+
     template<typename OUTPUT_TYPE>
-    NoonResult getOutput(OUTPUT_TYPE* outputBuffer) {
+    NoonResult getOutput(int idx, OUTPUT_TYPE* outputBuffer) {
         auto* typedProcessedInputBuffer = (OUTPUT_TYPE *) outputBuffer;
         std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
         NoonResult result;
 
         if (processor != nullptr) {
-            result = static_cast<NoonResult>(processor->getOutput<OUTPUT_TYPE>(typedProcessedInputBuffer));
+            result = static_cast<NoonResult>(processor->getOutput<OUTPUT_TYPE>(idx, typedProcessedInputBuffer));
             if (result != SUCCESS) {
                 return result;
             }

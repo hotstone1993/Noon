@@ -42,17 +42,11 @@ public:
         return PROCESSOR_SUCCESS;
     }
     template<typename OUTPUT_TYPE>
-    int getOutput(OUTPUT_TYPE* output) {
+    int getOutput(int idx, OUTPUT_TYPE* output) {
         tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
-        size_t start = 0;
-        std::vector<int> outputIndices = interpreter->outputs();
-        for (int idx = 0; idx < outputIndices.size(); ++idx) {
-            memcpy(output + start,
-                   interpreter->typed_tensor<OUTPUT_TYPE>(outputIndices[idx]),
-                   sizeof(OUTPUT_TYPE) * outputInfo.nodes[idx].getSize()
-            );
-            start += outputInfo.nodes[idx].getSize();
-        }
+        memcpy(output,
+               interpreter->typed_tensor<OUTPUT_TYPE>(interpreter->outputs()[idx]),
+               sizeof(OUTPUT_TYPE) * outputInfo.nodes[idx].getSize());
 
         return PROCESSOR_SUCCESS;
     }
