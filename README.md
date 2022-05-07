@@ -6,7 +6,8 @@ Since it is implemented based on *C++*, it can be used on various platforms.
 <pre>
 <code>
     // First, Create Noon instance.
-    private val nativeLib = Noon() 
+    private val nativeLib = Noon()
+    private var outputs = mutableListOf<FloatArray>() 
     
     // The model(*.tflite) is read from the asset folder.
     val model = getModel(assetManager) 
@@ -14,17 +15,34 @@ Since it is implemented based on *C++*, it can be used on various platforms.
     // InferenceInfo
     val inferenceInfo = InferenceInfo(
         type = InferenceInfo.InferenceType.IMAGE.ordinal,
-        delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
+        mlInfo = MLInfo(
+            mode = MLInfo.MlMode.TENSORFLOW_LITE.ordinal,
+            delegate = InferenceInfo.InferenceDelegate.CPU.ordinal,
+            info = MLInfo.TFLInfo(
+                numThread = 4,
+                allowFp16PrecisionForFp32 = false
+            )
+        ),
         model = model,
         modelSize = modelSize,
         input = InferenceInfo.InputInfo(
-          // set an input shape for the data to be put as input.
-          shape = listOf(image.width, image.height, pixelStride)
-          ),
-          // If you do not want to transform into a specific shape, you should not pass a value.
-          output = InferenceInfo.OutputInfo()
-        )
+            // set an input shape for the data to be put as input.
+            shape = listOf(image.width, image.height, pixelStride)
+        ),
+        // If you do not want to transform into a specific shape, you should not pass a value.
+        output = InferenceInfo.OutputInfo()
+    )
     nativeLib.setup(inferenceInfo)
+    // allocate output buffer
+    for (i in 0 until nativeLib.getOutputArraySize()) {
+        outputs.add(nativeLib.allocFloatBuffer(i, false))
+    }
+    // inference input
+    nativeLib.inferenceUByteArray(input)
+    // and get output(result).
+    for (i in 0 until nativeLib.getOutputArraySize()) {
+        nativeLib.nativeGetFloatArrayOutput(i, outputs[i])
+    }
 </code>
 </pre>
 
