@@ -9,8 +9,8 @@ Noon::Noon(): ml(nullptr),
                 mlType(TENSORFLOW_LITE),
                 processedInputBuffer(nullptr),
                 processedOutputBuffer(nullptr),
-                inputBufferSize(1),
-                outputBufferSize(1),
+                inputBufferSize(0),
+                outputBufferSize(0),
                 preProcessor(nullptr),
                 processor(nullptr),
                 postProcessor(nullptr),
@@ -68,13 +68,13 @@ NoonResult Noon::setup(const InferenceInfo& info) {
         outputBufferSize *= num;
     }
 
-    if (inputBufferSize > 1) {
+    if (inputBufferSize >= 1) {
         allocBuffer(&processedInputBuffer ,input, inputBufferSize);
     } else {
         return BUFFER_SIZE_ZERO_ERROR;
     }
 
-    if (outputBufferSize > 1) {
+    if (outputBufferSize >= 1) {
         allocBuffer(&processedOutputBuffer ,output, outputBufferSize);
     }
 
