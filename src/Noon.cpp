@@ -9,8 +9,8 @@ Noon::Noon(): ml(nullptr),
                 mlType(TENSORFLOW_LITE),
                 processedInputBuffer(nullptr),
                 processedOutputBuffer(nullptr),
-                inputBufferSize(0),
-                outputBufferSize(0),
+                inputBufferSize(1),
+                outputBufferSize(1),
                 preProcessor(nullptr),
                 processor(nullptr),
                 postProcessor(nullptr),
@@ -64,8 +64,19 @@ NoonResult Noon::setup(const InferenceInfo& info) {
     for (const auto& num: info.input.shape) {
         inputBufferSize *= num;
     }
-    for (const auto& num: info.output.shape) {
-        outputBufferSize *= num;
+
+    if (info.output.shape.empty()) {
+        outputBufferSize = 0;
+        for (int idx = 0; idx < getOutputArraySize(); ++idx) {
+            size_t size = getOutputBufferSize(idx);
+            if (size > outputBufferSize) {
+                outputBufferSize = size;
+            }
+        }
+    } else {
+        for (const auto& num: info.output.shape) {
+            outputBufferSize *= num;
+        }
     }
 
     if (inputBufferSize >= 1) {
@@ -163,9 +174,3 @@ size_t Noon::getOutputBufferSize(int idx) {
     }
 }
 // =================================================================================================
-
-void Noon::setZeroToOutputData(void** outputBuffer) {
-    for (int idx = 0; idx < processor->getNodes().size(); ++idx) {
-        memset(outputBuffer[idx], 0, sizeof(getNoonTypeSize(output)) * processor->getNodes()[idx].getSize());
-    }
-}

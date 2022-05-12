@@ -92,7 +92,7 @@ public:
 
     template<typename OUTPUT_TYPE>
     NoonResult getOutput(int idx, OUTPUT_TYPE* outputBuffer) {
-        auto* typedProcessedInputBuffer = (OUTPUT_TYPE *) outputBuffer;
+        auto* typedProcessedInputBuffer = (OUTPUT_TYPE *) processedOutputBuffer;
         std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
         NoonResult result;
 
@@ -104,15 +104,19 @@ public:
         } else {
             return PROCESSOR_NOT_INITIALIZED;
         }
-//    auto* typedProcessedOutputBuffer = (OUTPUT_TYPE *) processedOutputBuffer;
-//    if (postProcessor != nullptr) {
-//        result = postProcessor->inference(typedProcessedInputBuffer, typedProcessedOutputBuffer);
-//    } else {
-//        setZeroToOutputData(typeOutputBuffer);
-//        result = NOT_PROCESSED;
-//    }
-//
         std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+        benchmarkResults[BM_PROCESSING] = std::to_string(duration.count()) + "ms";
+        start = std::chrono::system_clock::now();
+
+        auto* typedProcessedOutputBuffer = (OUTPUT_TYPE *) outputBuffer;
+        if (postProcessor != nullptr) {
+            result = static_cast<NoonResult>(postProcessor->inference(typedProcessedInputBuffer, typedProcessedOutputBuffer));
+        } else {
+            bypassOutputData(&typedProcessedInputBuffer, &typedProcessedOutputBuffer, getOutputBufferSize(idx));
+            result = SUCCESS;
+        }
+
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
         benchmarkResults[BM_POST_PROCESSING] = std::to_string(duration.count()) + "ms";
         return result;
     }
@@ -129,7 +133,10 @@ private:
     void bypassInputData(INPUT_TYPE** inputBuffer, INPUT_TYPE** outputBuffer) {
         memcpy(*outputBuffer, *inputBuffer, sizeof(INPUT_TYPE) * inputBufferSize);
     }
-    void setZeroToOutputData(void** outputBuffer);
+    template <typename OUTPUT_TYPE>
+    void bypassOutputData(OUTPUT_TYPE** inputBuffer, OUTPUT_TYPE** outputBuffer, size_t size) {
+        memcpy(*outputBuffer, *inputBuffer, sizeof(OUTPUT_TYPE) * size);
+    }
 
     BaseML* ml;
     MLMode mlType;
