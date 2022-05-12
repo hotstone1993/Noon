@@ -104,9 +104,6 @@ public:
         } else {
             return PROCESSOR_NOT_INITIALIZED;
         }
-        std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
-        benchmarkResults[BM_PROCESSING] = std::to_string(duration.count()) + "ms";
-        start = std::chrono::system_clock::now();
 
         auto* typedProcessedOutputBuffer = (OUTPUT_TYPE *) outputBuffer;
         if (postProcessor != nullptr) {
@@ -116,7 +113,7 @@ public:
             result = SUCCESS;
         }
 
-        duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
+        std::chrono::milliseconds duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start);
         benchmarkResults[BM_POST_PROCESSING] = std::to_string(duration.count()) + "ms";
         return result;
     }
