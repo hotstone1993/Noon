@@ -39,6 +39,8 @@ int Processor::setup(int inferenceType, NoonType noonType, const std::vector<int
         TfLiteIntArray* dims = interpreter->tensor(interpreter->inputs()[idx])->dims;
         targetInfo->nodes.emplace_back();
         for (int i = 0; i < dims->size; ++i) {
+            if (dims->data[i] == 1)
+                continue;
             targetInfo->nodes[idx].shape.push_back(dims->data[i]);
         }
     }
