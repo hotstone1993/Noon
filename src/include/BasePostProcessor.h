@@ -11,7 +11,7 @@ public:
     virtual ~BasePostProcessor() {}
 
     virtual int setup() = 0;
-    virtual int inference(void* inputBuffer, void* output) = 0;
+    virtual int process(void* inputBuffer, void* output) = 0;
 private:
 };
 

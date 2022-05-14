@@ -62,7 +62,7 @@ public:
         auto* typedProcessedInputBuffer = (INPUT_TYPE *) processedInputBuffer;
 
         if (preProcessor != nullptr) {
-            result = static_cast<NoonResult>(preProcessor->inference(typedInputBuffer,
+            result = static_cast<NoonResult>(preProcessor->process(typedInputBuffer,
                                                                      typedProcessedInputBuffer));
         } else {
             bypassInputData<INPUT_TYPE>(&typedInputBuffer, &typedProcessedInputBuffer);
@@ -107,7 +107,7 @@ public:
 
         auto* typedProcessedOutputBuffer = (OUTPUT_TYPE *) outputBuffer;
         if (postProcessor != nullptr) {
-            result = static_cast<NoonResult>(postProcessor->inference(typedProcessedInputBuffer, typedProcessedOutputBuffer));
+            result = static_cast<NoonResult>(postProcessor->process(typedProcessedInputBuffer, typedProcessedOutputBuffer));
         } else {
             bypassOutputData(&typedProcessedInputBuffer, &typedProcessedOutputBuffer, getOutputBufferSize(idx));
             result = SUCCESS;
