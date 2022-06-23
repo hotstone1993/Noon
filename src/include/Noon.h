@@ -38,7 +38,8 @@ typedef enum {
     PROCESSOR_NOT_INITIALIZED = 4,
     POST_PROCESSOR_ERROR = 5,
     BUFFER_SIZE_ZERO_ERROR = 6,
-    NOT_PROCESSED = 7
+    NOT_PROCESSED = 7,
+    OUT_OF_MEMORY = 8
 } NoonResult;
 
 typedef enum {
@@ -51,6 +52,7 @@ public:
     Noon();
     ~Noon();
 
+    void deinit();
     NoonResult loadModel(const char* file, size_t fileSize, MLMode mlType, BaseMLInfo& info);
     NoonResult setup(const InferenceInfo& info);
 
@@ -145,7 +147,7 @@ private:
     BasePreProcessor* preProcessor;
     Processor* processor;
     BasePostProcessor* postProcessor;
-
+q
     std::unordered_map<std::string, std::string> benchmarkResults;
     int inferenceType;
     NoonType input;

@@ -122,14 +122,24 @@ Java_com_newstone_noon_Noon_setup(
     } else {
         return -1;
     }
+    int result = newInstance->setup(info);
+    if (result == OUT_OF_MEMORY) {
+        delete newInstance;
+        env->SetLongField(obj, instanceId, static_cast<jlong>(NULL));
+    } else {
 
-    return printResult(newInstance->setup(info));
+    }
+
+    return printResult(result);
 }
 
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceULongArray(JNIEnv *env, jobject obj, jlongArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jlong* inputBuffer = env->GetLongArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<uint64_t *>(inputBuffer));
     env->ReleaseLongArrayElements(input, inputBuffer, JNI_ABORT);
@@ -141,6 +151,9 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceLongArray(JNIEnv *env, jobject obj, jlongArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jlong* inputBuffer = env->GetLongArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<int64_t *>(inputBuffer));
     env->ReleaseLongArrayElements(input, inputBuffer, JNI_ABORT);
@@ -153,6 +166,9 @@ JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceDoubleArray(JNIEnv *env, jobject obj,
                                                        jdoubleArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jdouble* inputBuffer = env->GetDoubleArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<double *>(inputBuffer));
     env->ReleaseDoubleArrayElements(input, inputBuffer, JNI_ABORT);
@@ -165,6 +181,9 @@ JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceFloatArray(JNIEnv *env, jobject obj,
                                                       jfloatArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jfloat* inputBuffer = env->GetFloatArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<float *>(inputBuffer));
     env->ReleaseFloatArrayElements(input, inputBuffer, JNI_ABORT);
@@ -176,6 +195,9 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceIntArray(JNIEnv *env, jobject obj, jintArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jint* inputBuffer = env->GetIntArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<int32_t *>(inputBuffer));
     env->ReleaseIntArrayElements(input, inputBuffer, JNI_ABORT);
@@ -194,6 +216,9 @@ JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceShortArray(JNIEnv *env, jobject obj,
                                                       jshortArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jshort* inputBuffer = env->GetShortArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<int16_t *>(inputBuffer));
     env->ReleaseShortArrayElements(input, inputBuffer, JNI_ABORT);
@@ -205,6 +230,9 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceUShortArray(JNIEnv *env, jobject obj, jshortArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jshort* inputBuffer = env->GetShortArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<uint16_t *>(inputBuffer));
     env->ReleaseShortArrayElements(input, inputBuffer, JNI_ABORT);
@@ -216,6 +244,9 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceByteArray(JNIEnv *env, jobject obj, jbyteArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<int8_t *>(inputBuffer));
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
@@ -227,6 +258,9 @@ extern "C"
 JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_inferenceUByteArray(JNIEnv *env, jobject obj, jbyteArray input) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     jbyte* inputBuffer = env->GetByteArrayElements(input, nullptr);
     int result = instance->inference(reinterpret_cast<uint8_t *>(inputBuffer));
     env->ReleaseByteArrayElements(input, inputBuffer, JNI_ABORT);
@@ -259,6 +293,9 @@ Java_com_newstone_noon_Noon_nativeGetFloatArrayOutput(JNIEnv *env, jobject obj, 
                                                       jfloatArray output) {
     jfloat* outputBuffer = env->GetFloatArrayElements(output, nullptr);
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     int result = instance->getOutput(idx, outputBuffer);
     env->ReleaseFloatArrayElements(output, outputBuffer, 0);
     return result;
@@ -268,6 +305,9 @@ JNIEXPORT jint JNICALL
 Java_com_newstone_noon_Noon_nativeGetIntArrayOutput(JNIEnv *env, jobject obj, jint idx, jintArray output) {
     jint* outputBuffer = env->GetIntArrayElements(output, nullptr);
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return printResult(NOT_INITIALIZED);
+    }
     int result = instance->getOutput(idx, outputBuffer);
     env->ReleaseIntArrayElements(output, outputBuffer, 0);
     return result;
@@ -314,6 +354,9 @@ extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_newstone_noon_Noon_getBenchmark(JNIEnv *env, jobject obj) {
     Noon* instance = getInstance(env, obj);
+    if (instance == NULL) {
+        return (jstring)"Noon instance has not yet been initialized.";
+    }
     const std::string& result = instance->getBenchmark(BM_PROCESSING);
     jstring jbuf = env->NewStringUTF(result.c_str());
     return jbuf;

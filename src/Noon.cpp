@@ -18,6 +18,10 @@ Noon::Noon(): ml(nullptr),
 }
 
 Noon::~Noon() {
+    deinit();
+}
+
+void Noon::deinit() {
     DELETE(processedInputBuffer)
     DELETE(processedOutputBuffer)
 
@@ -79,14 +83,19 @@ NoonResult Noon::setup(const InferenceInfo& info) {
         }
     }
 
-    if (inputBufferSize >= 1) {
-        allocBuffer(&processedInputBuffer ,input, inputBufferSize);
-    } else {
-        return BUFFER_SIZE_ZERO_ERROR;
-    }
+    try {
+        if (inputBufferSize >= 1) {
+            allocBuffer(&processedInputBuffer ,input, inputBufferSize);
+        } else {
+            return BUFFER_SIZE_ZERO_ERROR;
+        }
 
-    if (outputBufferSize >= 1) {
-        allocBuffer(&processedOutputBuffer ,output, outputBufferSize);
+        if (outputBufferSize >= 1) {
+            allocBuffer(&processedOutputBuffer ,output, outputBufferSize);
+        }
+    } catch (std::bad_alloc& exception) {
+        deinit();
+        return OUT_OF_MEMORY;
     }
 
     return result;

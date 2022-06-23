@@ -5,13 +5,14 @@
 #ifndef NOON_BASEPOSTPROCESSOR_H
 #define NOON_BASEPOSTPROCESSOR_H
 
+
 class BasePostProcessor {
 public:
     BasePostProcessor() {}
     virtual ~BasePostProcessor() {}
 
     virtual int setup() = 0;
-    virtual int process(void* inputBuffer, void* output) = 0;
+    virtual int process(void* input, void* output) = 0;
 private:
 };
 

@@ -11,7 +11,7 @@ public:
     virtual ~BasePreProcessor() {}
 
     virtual int setup() = 0;
-    virtual int process(void* inputBuffer, void* output) = 0;
+    virtual int process(void* input, void* output) = 0;
 private:
 };
 
