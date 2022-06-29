@@ -7,7 +7,7 @@
 #include <android/log.h>
 #include <chrono>
 
-Processor::Processor(BaseML* ml):
+Processor::Processor(std::shared_ptr<BaseML> ml):
     ml(ml),
     noonType(NoonUnknown),
     processedBuffer(nullptr),
@@ -33,7 +33,7 @@ int Processor::setup(int inferenceType, NoonType noonType, const std::vector<int
     for (const int& dim: shape) {
         inputInfo->nodes[0].shape.push_back(dim);
     }
-    tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
+    tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml.get())->getInterpreter();
 
     for (int idx = 0; idx < interpreter->inputs().size(); ++idx) {
         TfLiteIntArray* dims = interpreter->tensor(interpreter->inputs()[idx])->dims;

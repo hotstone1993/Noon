@@ -137,7 +137,7 @@ private:
         memcpy(*outputBuffer, *inputBuffer, sizeof(OUTPUT_TYPE) * size);
     }
 
-    BaseML* ml;
+    std::shared_ptr<BaseML> ml;
     MLMode mlType;
     void* processedInputBuffer;
     void* processedOutputBuffer;
@@ -147,7 +147,7 @@ private:
     BasePreProcessor* preProcessor;
     Processor* processor;
     BasePostProcessor* postProcessor;
-q
+
     std::unordered_map<std::string, std::string> benchmarkResults;
     int inferenceType;
     NoonType input;

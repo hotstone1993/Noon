@@ -23,12 +23,12 @@ enum {
 
 class Processor {
 public:
-    Processor(BaseML* ml);
+    Processor(std::shared_ptr<BaseML> ml);
     virtual ~Processor();
 
     template<typename INTPUT_TYPE>
     int inference(INTPUT_TYPE* inputBuffer) {
-        tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
+        tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml.get())->getInterpreter();
         filter->process(inputBuffer, processedBuffer);
 
         size_t size = targetInfo->nodes[0].getSize();
@@ -43,7 +43,7 @@ public:
     }
     template<typename OUTPUT_TYPE>
     int getOutput(int idx, OUTPUT_TYPE* output) {
-        tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml)->getInterpreter();
+        tflite::Interpreter* interpreter = static_cast<NoonTensorFlowLite*>(ml.get())->getInterpreter();
         memcpy(output,
                interpreter->typed_tensor<OUTPUT_TYPE>(interpreter->outputs()[idx]),
                sizeof(OUTPUT_TYPE) * outputInfo.nodes[idx].getSize());
@@ -62,7 +62,7 @@ private:
     BaseInfo outputInfo;
     BaseFilter* filter;
 
-    BaseML* ml;
+    std::shared_ptr<BaseML> ml;
     BaseInfo* inputInfo;
     BaseInfo* targetInfo;
 };
