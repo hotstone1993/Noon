@@ -22,8 +22,8 @@ Noon::~Noon() {
 }
 
 void Noon::deinit() {
-    DELETE(processedInputBuffer)
-    DELETE(processedOutputBuffer)
+    deAllocBuffer(&processedInputBuffer, input);
+    deAllocBuffer(&processedOutputBuffer, output);
 
     DELETE(preProcessor)
     DELETE(processor)

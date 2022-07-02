@@ -74,7 +74,6 @@ int Processor::setup(int inferenceType, NoonType noonType, const std::vector<int
 
 int Processor::destroy() {
     deAllocBuffer(&processedBuffer, noonType);
-    DELETE(filter)
     DELETE(inputInfo)
     DELETE(targetInfo)
     return PROCESSOR_SUCCESS;
