@@ -3,7 +3,6 @@
 //
 #include "include/Utils.h"
 #include "include/Noon.h"
-#include <chrono>
 
 Noon::Noon(): ml(nullptr),
                 mlType(TENSORFLOW_LITE),

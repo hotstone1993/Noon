@@ -9,6 +9,8 @@
 #include "BasePreProcessor.h"
 #include "Processor.h"
 
+#include <chrono>
+
 struct InputInfo {
     std::vector<int> shape;
 };
