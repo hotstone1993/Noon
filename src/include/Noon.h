@@ -21,8 +21,6 @@ struct OutputInfo {
 
 struct InferenceInfo {
     int type;
-    int8_t * model = nullptr;
-    unsigned modelSize = 0;
     InputInfo input;
     OutputInfo output;
 };

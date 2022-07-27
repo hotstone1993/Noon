@@ -55,14 +55,15 @@ Java_com_newstone_noon_Noon_setup(
     jfieldID typeId = env->GetFieldID(cls, "type", "I");
     info.type = env->GetIntField(inferenceInfo, typeId);
     jfieldID modelSizeId = env->GetFieldID(cls, "modelSize", "I");
-    info.modelSize = env->GetIntField(inferenceInfo, modelSizeId);
+    int modelSize = env->GetIntField(inferenceInfo, modelSizeId);
+    int8_t* model = nullptr;
 
-    if (info.modelSize > 0) {
+    if (modelSize > 0) {
         jfieldID modelId = env->GetFieldID(cls, "model", "[B");
         jobject modelObject = env->GetObjectField (inferenceInfo, modelId);
-        info.model = new int8_t[info.modelSize];
+        model = new int8_t[modelSize];
         jbyteArray arr = reinterpret_cast<jbyteArray>(modelObject);
-        env->GetByteArrayRegion(arr, 0, sizeof(int8_t) * info.modelSize, info.model);
+        env->GetByteArrayRegion(arr, 0, sizeof(int8_t) * modelSize, model);
     }
 
     jfieldID inputInfoId = env->GetFieldID(cls, "input", "Lcom/newstone/noon/InferenceInfo$InputInfo;");
@@ -118,7 +119,7 @@ Java_com_newstone_noon_Noon_setup(
         tflInfo.numThread = env->GetIntField(tflInfoObject, numThreadId);
         jfieldID allowFp16PrecisionForFp32Id = env->GetFieldID(tflInfoClass, "allowFp16PrecisionForFp32", "Z");
         tflInfo.allowFp16PrecisionForFp32 = env->GetBooleanField(tflInfoObject, allowFp16PrecisionForFp32Id);
-        newInstance->loadModel((char*)info.model, info.modelSize, (MLMode)info.type, tflInfo);
+        newInstance->loadModel((char*)model, modelSize, (MLMode)info.type, tflInfo);
     } else {
         return -1;
     }

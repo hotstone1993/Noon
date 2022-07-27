@@ -45,12 +45,8 @@ NoonResult Noon::loadModel(const char* file, size_t fileSize, MLMode mlType, Bas
 NoonResult Noon::setup(const InferenceInfo& info) {
     NoonResult result = SUCCESS;
 
-    if (info.model != nullptr) {
-        if (processor == nullptr) {
-            processor = new Processor(ml);
-        }
-    } else {
-        return PROCESSOR_NOT_INITIALIZED;
+    if (processor == nullptr) {
+        processor = new Processor(ml);
     }
 
     if (info.type >= UNKNOWN_TYPE) {
