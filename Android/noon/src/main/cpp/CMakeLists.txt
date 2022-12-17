@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-project("noon")
+project("Android_Noon")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../
-                ${CMAKE_CURRENT_SOURCE_DIR}/../../../../build/Native_Noon)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../src
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../../build/Noon)
 
 add_library( # Sets the name of the library.
         ${PROJECT_NAME}
@@ -18,4 +18,4 @@ add_library( # Sets the name of the library.
 
 target_link_libraries( # Specifies the target library.
                         ${PROJECT_NAME} PUBLIC
-                        Native_Noon )
+                        Noon )

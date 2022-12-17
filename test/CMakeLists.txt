@@ -29,8 +29,8 @@ PROPERTIES
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-                        Catch2::Catch2
-                        Noon)
+                        Catch2::Catch2)
+
 
 add_test(NAME test_main
             COMMAND Noon_Test
