@@ -3,7 +3,9 @@
 //
 #include "include/Utils.h"
 #include "include/NoonTensorFlowLite.h"
+#if(Android)
 #include <android/log.h>
+#endif
 
 const char* const TAG = "Noon";
 
@@ -60,7 +62,7 @@ NoonTensorFlowLite::~NoonTensorFlowLite() {
     }
 }
 
-int NoonTensorFlowLite::loadModel(const char* file, size_t fileSize, BaseMLInfo& info) {
+int NoonTensorFlowLite::loadModel(const char* file, unsigned int fileSize, BaseMLInfo& info) {
     this->delegateType = info.delegateType;
     TFLInfo castedInfo = static_cast<TFLInfo&>(info);
     modelBuffer = new char[fileSize];

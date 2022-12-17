@@ -4,7 +4,9 @@
 
 #include "include/Processor.h"
 #include "include/SimpleAverageFilter.h"
+#if(Android)
 #include <android/log.h>
+#endif
 #include <chrono>
 
 Processor::Processor(std::shared_ptr<BaseML> ml):

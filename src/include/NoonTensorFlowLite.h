@@ -22,7 +22,7 @@ public:
     NoonTensorFlowLite();
     ~NoonTensorFlowLite();
 
-    int loadModel(const char* file, size_t fileSize, BaseMLInfo& info) override;
+    int loadModel(const char* file, unsigned int fileSize, BaseMLInfo& info) override;
     void getType(NoonType& input, NoonType& output) override;
 
     tflite::Interpreter* getInterpreter() {

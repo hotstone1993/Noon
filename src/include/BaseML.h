@@ -120,7 +120,7 @@ struct BaseMLInfo {
 
 class BaseML {
 public:
-    virtual int loadModel(const char* file, size_t fileSize, BaseMLInfo& info) = 0;
+    virtual int loadModel(const char* file, unsigned int fileSize, BaseMLInfo& info) = 0;
     virtual void getType(NoonType& input, NoonType& output) = 0;
 };
 
